@@ -1,0 +1,1702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dolce Vita Community Portal – Prototype</title>
+<meta name="description" content="Interactive UI/UX prototype of the Dolce Vita Community Portal (VitaTech, SADL05C Phase 4).">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Playfair+Display:ital,wght@1,700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#161B26}
+a{color:#93C5FD}a:hover{color:#BFDBFE}
+button{font-family:inherit}
+button:not(:disabled){cursor:pointer}
+button:not(:disabled):hover{filter:brightness(1.1)}
+button:disabled{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:3px solid #60A5FA;outline-offset:2px}
+input::placeholder,textarea::placeholder{color:#8B93A3}
+select option{color:#111827;background:#FFFFFF}
+@keyframes dvspin{to{transform:rotate(360deg)}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<template id="dc-template">
+<div style="min-height: 100vh; background: #161B26; color: #F3F4F6; font-family: 'Poppins', system-ui, sans-serif; font-size: 15px; line-height: 1.55">
+
+<!-- PROTOTYPE CONTROL BAR (not part of the design) -->
+<sc-if value="{{showBar}}" hint-placeholder-val="{{ true }}">
+<div style="background: #05070B; border-bottom: 1px solid #2A3142; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 13px; color: #C9CED8">
+<span style="font-weight: 700; color: #F5B800; letter-spacing: 0.04em">PROTOTYPE</span>
+<span style="padding: 2px 10px; border-radius: 999px; background: #1F2937; color: #F3F4F6; font-weight: 600">{{meta.id}} · {{meta.name}}</span>
+<span style="display: flex; align-items: center; gap: 6px">
+<label for="jump" style="color: #C9CED8">Jump to</label>
+<select id="jump" value="{{screen}}" onChange="{{jump}}" style="min-height: 32px; border-radius: 6px; background: #111827; color: #F3F4F6; border: 1px solid #4B5563; font-family: inherit; font-size: 13px; padding: 0 6px">
+<optgroup label="Public">
+<option value="landing">SCR-01 Landing Page</option>
+<option value="about">SCR-02 About Us</option>
+<option value="community">SCR-03 Community Page</option>
+<option value="register">SCR-04 Resident Registration</option>
+<option value="login">SCR-05 Login Page</option>
+<option value="forgot">SCR-06 Forgot Password</option>
+<option value="status">SCR-09 Registration Status</option>
+</optgroup>
+<optgroup label="Resident">
+<option value="rhome">SCR-07 Resident Landing Page</option>
+<option value="ann">SCR-08 View Announcements</option>
+<option value="complain">SCR-10 Post Complaint</option>
+<option value="mycomp">SCR-11 My Complaints Submitted</option>
+<option value="dues">SCR-12 View Dues</option>
+<option value="pay">SCR-13 Online Payment (QR Ph)</option>
+<option value="receipt">SCR-14 Digital Receipt</option>
+<option value="profile">SCR-15 Profile Details</option>
+</optgroup>
+<optgroup label="Administrator">
+<option value="ahome">SCR-16 Admin Dashboard</option>
+<option value="ares">SCR-17 Manage Resident Accounts</option>
+<option value="averify">SCR-18 Verification Review (OCR)</option>
+<option value="aann">SCR-19 Post Announcements</option>
+<option value="acomp">SCR-20 Manage Complaints</option>
+<option value="adues">SCR-21 Manage Dues</option>
+</optgroup>
+<optgroup label="System">
+<option value="denied">SCR-22 Access Restricted</option>
+</optgroup>
+</select>
+</span>
+<span style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
+<span>View as</span>
+<button type="button" onClick="{{asVisitor}}" style="min-height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid #4B5563; background: #111827; color: #F3F4F6; font-size: 13px">Visitor</button>
+<button type="button" onClick="{{asResident}}" style="min-height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid #4B5563; background: #111827; color: #F3F4F6; font-size: 13px">Resident</button>
+<button type="button" onClick="{{asAdmin}}" style="min-height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid #4B5563; background: #111827; color: #F3F4F6; font-size: 13px">Admin</button>
+<button type="button" onClick="{{resetAll}}" style="min-height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid #4B5563; background: transparent; color: #C9CED8; font-size: 13px">Reset sample data</button>
+</span>
+</div>
+</sc-if>
+
+<!-- GLOBAL HEADER -->
+<sc-if value="{{showNav}}" hint-placeholder-val="{{ true }}">
+<header style="background: #FFFFFF; color: #1F2937; padding: 8px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; border-bottom: 1px solid #E5E7EB">
+<button type="button" onClick="{{goHome}}" aria-label="Dolce Vita Community Portal, go to home" style="display: flex; align-items: center; gap: 10px; background: none; border: none; padding: 6px 0; min-height: 44px">
+<svg aria-hidden="true" width="34" height="34" viewBox="0 0 34 34"><rect x="0" y="0" width="34" height="34" rx="6" fill="#2B5FC4"></rect><path d="M4 27 L13 13 L19 21 L23 16 L30 27 Z" fill="#FFFFFF"></path><circle cx="25" cy="9" r="3" fill="#F5B800"></circle></svg>
+<span style="font-size: 18px; font-weight: 700; color: #2B5FC4">Dolce Vita <span style="color: #7A5A00">Community Portal</span></span>
+</button>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px">
+<sc-for list="{{navItems}}" as="n" hint-placeholder-count="3">
+<button type="button" onClick="{{n.go}}" aria-current="{{n.cur}}" style="min-height: 44px; padding: 0 12px; background: none; border: none; border-bottom: 3px solid {{n.line}}; color: {{n.fg}}; font-size: 14px; font-weight: 500">{{n.label}}</button>
+</sc-for>
+<sc-if value="{{isGuest}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{goLogin}}" style="min-height: 44px; padding: 0 12px; background: none; border: none; border-bottom: 3px solid {{loginLine}}; color: #1F2937; font-size: 14px; font-weight: 500">Log in</button>
+<button type="button" onClick="{{goRegister}}" style="min-height: 40px; padding: 0 16px; margin-left: 4px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 14px; font-weight: 600">Register</button>
+</sc-if>
+<sc-if value="{{isAuth}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 12px; border-left: 1px solid #E5E7EB">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 50%; background: #2B5FC4; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600">{{userInitials}}</span>
+<span style="display: flex; flex-direction: column; line-height: 1.2"><span style="font-size: 13px; font-weight: 600; color: #1F2937">{{userName}}</span><span style="font-size: 12px; color: #4B5563">{{roleLabel}}</span></span>
+<button type="button" onClick="{{askLogout}}" style="min-height: 40px; padding: 0 14px; margin-left: 4px; background: #FFFFFF; color: #1F2937; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 14px; font-weight: 500">Log out</button>
+</span>
+</sc-if>
+</nav>
+</header>
+</sc-if>
+
+<!-- ============ PUBLIC LAYOUT ============ -->
+
+<!-- SCR-01 LANDING -->
+<sc-if value="{{s.landing}}" hint-placeholder-val="{{ true }}">
+<main>
+<section style="background: #0E131D; padding: 96px 24px 88px; text-align: center; border-bottom: 1px solid #252C3B">
+<p style="margin: 0 0 8px; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: #F5B800; font-weight: 600">Villaggio de Xavier Dolce Vita · Biñan City, Laguna</p>
+<h1 style="margin: 0; font-size: 48px; line-height: 1.15; font-weight: 700">Welcome to<br><span style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 52px">Dolce Vita Community!</span></h1>
+<p style="max-width: 620px; margin: 20px auto 32px; font-size: 17px; color: #D1D5DB">One place for village announcements, concerns, and monthly dues — so residents no longer have to follow updates across group chats.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center">
+<button type="button" onClick="{{goRegister}}" style="min-height: 48px; padding: 0 24px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 16px; font-weight: 600">Register as a resident</button>
+<button type="button" onClick="{{goLogin}}" style="min-height: 48px; padding: 0 24px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 16px; font-weight: 500">Log in</button>
+</div>
+</section>
+<section aria-labelledby="feat-h" style="max-width: 1200px; margin: 0 auto; padding: 56px 24px 24px">
+<h2 id="feat-h" style="margin: 0 0 24px; font-size: 24px">What residents can do in the portal</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px"><h3 style="margin: 0 0 6px; font-size: 17px; color: #F5B800">Announcements</h3><p style="margin: 0; color: #C9CED8; font-size: 14px">Read official notices from the association in one feed.</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px"><h3 style="margin: 0 0 6px; font-size: 17px; color: #F5B800">Complaints</h3><p style="margin: 0; color: #C9CED8; font-size: 14px">File a concern and follow its status until it's resolved.</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px"><h3 style="margin: 0 0 6px; font-size: 17px; color: #F5B800">Dues and QR Ph payments</h3><p style="margin: 0; color: #C9CED8; font-size: 14px">See your ₱840 monthly dues, pay online, and keep digital receipts.</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px"><h3 style="margin: 0 0 6px; font-size: 17px; color: #F5B800">Verified residents only</h3><p style="margin: 0; color: #C9CED8; font-size: 14px">Proof of residency is checked before an account is activated.</p></div>
+</div>
+</section>
+<section aria-labelledby="how-h" style="max-width: 1200px; margin: 0 auto; padding: 32px 24px 64px">
+<h2 id="how-h" style="margin: 0 0 24px; font-size: 24px">How registration works</h2>
+<ol style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<li style="display: flex; gap: 14px"><span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 50%; background: #F5B800; color: #1A1A1A; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span><span><strong>Register and upload proof</strong><br><span style="color: #C9CED8; font-size: 14px">Fill in your details and upload a barangay certificate or other proof of residency.</span></span></li>
+<li style="display: flex; gap: 14px"><span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 50%; background: #F5B800; color: #1A1A1A; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span><span><strong>Document check and admin review</strong><br><span style="color: #C9CED8; font-size: 14px">The portal reads your document (OCR) and an administrator makes the final decision.</span></span></li>
+<li style="display: flex; gap: 14px"><span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 50%; background: #F5B800; color: #1A1A1A; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span><span><strong>Log in</strong><br><span style="color: #C9CED8; font-size: 14px">You'll get an email once approved, then you can log in to the resident portal.</span></span></li>
+</ol>
+</section>
+<footer style="border-top: 1px solid #252C3B; padding: 20px 24px; text-align: center; font-size: 13px; color: #B8BFCC">Villaggio de Xavier Dolce Vita Village · Barangay Zapote, Biñan City, Laguna · Developed by VitaTech</footer>
+</main>
+</sc-if>
+
+<!-- SCR-02 ABOUT -->
+<sc-if value="{{s.about}}" hint-placeholder-val="{{ false }}">
+<main style="max-width: 1200px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-wrap: wrap; gap: 24px">
+<section aria-labelledby="about-h" style="flex: 1 1 340px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 28px">
+<h1 id="about-h" style="margin: 0 0 12px; font-size: 28px; color: #F5B800">About us</h1>
+<p style="margin: 0 0 12px; color: #D1D5DB">The <strong>Dolce Vita Community Portal</strong> brings residents of Villaggio de Xavier Dolce Vita Village together in one organized, easy-to-use space. It replaces scattered group-chat updates and paper records with a single portal for announcements, concerns, dues and payment records.</p>
+<p style="margin: 0 0 20px; color: #D1D5DB">The portal was built by VitaTech as a semester project for SADL05C – System Analysis and Design at Lyceum of the Philippines University.</p>
+<button type="button" onClick="{{goCommunity}}" style="min-height: 44px; padding: 0 20px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Visit the Community page</button>
+</section>
+<section aria-labelledby="team-h" style="flex: 2 1 520px">
+<h2 id="team-h" style="margin: 0 0 16px; font-size: 22px; color: #F5B800">Meet our team</h2>
+<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px">
+<sc-for list="{{team}}" as="m" hint-placeholder-count="5">
+<li style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 18px 14px; text-align: center">
+<div role="img" aria-label="Photo placeholder for team member" style="width: 72px; height: 72px; margin: 0 auto 10px; border-radius: 50%; border: 3px solid #F5B800; background: #2A3142; display: flex; align-items: center; justify-content: center; color: #B8BFCC; font-size: 12px">Photo</div>
+<p style="margin: 0; font-weight: 600; font-size: 14px">[Member name]</p>
+<p style="margin: 4px 0 0; font-size: 13px; color: #C9CED8">{{m.role}}</p>
+</li>
+</sc-for>
+</ul>
+</section>
+</main>
+</sc-if>
+
+<!-- SCR-03 COMMUNITY -->
+<sc-if value="{{s.community}}" hint-placeholder-val="{{ false }}">
+<main style="max-width: 1200px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section aria-labelledby="comm-h" style="flex: 1 1 340px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 28px">
+<h1 id="comm-h" style="margin: 0 0 16px; font-size: 28px; color: #F5B800">Our community</h1>
+<dl style="margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px">
+<div><dt style="font-size: 13px; color: #B8BFCC">Location</dt><dd style="margin: 0">Villaggio de Xavier Dolce Vita, Barangay Zapote, Biñan City, Laguna</dd></div>
+<div><dt style="font-size: 13px; color: #B8BFCC">Monthly association dues</dt><dd style="margin: 0">₱840.00, due on the last day of each month</dd></div>
+<div><dt style="font-size: 13px; color: #B8BFCC">Ways to pay</dt><dd style="margin: 0">Online through QR Ph in the portal, or onsite at the association office</dd></div>
+<div><dt style="font-size: 13px; color: #B8BFCC">Association office hours</dt><dd style="margin: 0">[Office hours]</dd></div>
+<div><dt style="font-size: 13px; color: #B8BFCC">Contact</dt><dd style="margin: 0">[Association contact number / email]</dd></div>
+</dl>
+</section>
+<section aria-labelledby="fb-h" style="flex: 1 1 420px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 28px">
+<h2 id="fb-h" style="margin: 0 0 4px; font-size: 22px">Share your feedback</h2>
+<p style="margin: 0 0 20px; color: #C9CED8; font-size: 14px">Tell us how we can improve the portal or the village. <span aria-hidden="true" style="color: #FCD34D">*</span> Required</p>
+<form onSubmit="{{submitFeedback}}" novalidate="true" style="display: flex; flex-direction: column; gap: 16px">
+<div>
+<label for="fb_name" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Name (optional)</label>
+<input id="fb_name" type="text" autocomplete="name" value="{{f.fb_name}}" onChange="{{on.fb_name}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+</div>
+<div>
+<label for="fb_type" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Feedback about</label>
+<select id="fb_type" value="{{f.fb_type}}" onChange="{{on.fb_type}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+<option value="The portal">The portal</option>
+<option value="The village">The village</option>
+<option value="Association services">Association services</option>
+</select>
+</div>
+<div>
+<label for="fb_msg" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Message <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<textarea id="fb_msg" rows="4" value="{{f.fb_msg}}" onChange="{{on.fb_msg}}" aria-invalid="{{inv.fb_msg}}" aria-required="true" aria-describedby="fb_msg-help" style="width: 100%; box-sizing: border-box; min-height: 110px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; resize: vertical; border: 1px solid {{bc.fb_msg}}"></textarea>
+<p id="fb_msg-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">10–500 characters.</p>
+<sc-if value="{{err.fb_msg}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.fb_msg}}</p></sc-if>
+</div>
+<div style="display: flex; justify-content: flex-end"><button type="submit" style="min-height: 44px; padding: 0 22px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Send feedback</button></div>
+</form>
+</section>
+</main>
+</sc-if>
+
+<!-- SCR-04 REGISTRATION -->
+<sc-if value="{{s.register}}" hint-placeholder-val="{{ false }}">
+<main style="max-width: 820px; margin: 0 auto; padding: 40px 24px 64px">
+<h1 style="margin: 0 0 4px; font-size: 28px">Resident registration</h1>
+<p style="margin: 0 0 20px; color: #C9CED8">Create your account and upload proof that you live in Dolce Vita. An administrator reviews every application. <span aria-hidden="true" style="color: #FCD34D">*</span> Required field</p>
+<section aria-labelledby="pn-h" style="background: #1B2333; border: 1px solid #3B4A66; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px">
+<h2 id="pn-h" style="margin: 0 0 6px; font-size: 16px; color: #BFDBFE">Privacy notice</h2>
+<p style="margin: 0; font-size: 14px; color: #D1D5DB">We collect your name, birthdate, contact details, address and proof-of-residency document only to verify residency and manage your account, dues and concerns. Your document is visible only to you and authorized administrators. [Insert the association's approved privacy notice and data-handling policy.]</p>
+</section>
+<sc-if value="{{regSummary}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; gap: 10px; background: #3B0A0A; border: 1px solid #EF4444; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; color: #FECACA"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><span><strong>{{regSummary}}</strong> Fix the highlighted fields, then submit again.</span></div>
+</sc-if>
+<form onSubmit="{{submitRegister}}" novalidate="true" style="display: flex; flex-direction: column; gap: 20px">
+<fieldset style="margin: 0; border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; background: rgba(255,255,255,0.04)">
+<legend style="padding: 0 8px; font-weight: 600; color: #F5B800">Personal information</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<div>
+<label for="reg_first" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">First name <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_first" type="text" autocomplete="given-name" value="{{f.reg_first}}" onChange="{{on.reg_first}}" aria-invalid="{{inv.reg_first}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_first}}">
+<sc-if value="{{err.reg_first}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_first}}</p></sc-if>
+</div>
+<div>
+<label for="reg_middle" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Middle name (optional)</label>
+<input id="reg_middle" type="text" autocomplete="additional-name" value="{{f.reg_middle}}" onChange="{{on.reg_middle}}" aria-invalid="{{inv.reg_middle}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_middle}}">
+<sc-if value="{{err.reg_middle}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_middle}}</p></sc-if>
+</div>
+<div>
+<label for="reg_last" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Last name <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_last" type="text" autocomplete="family-name" value="{{f.reg_last}}" onChange="{{on.reg_last}}" aria-invalid="{{inv.reg_last}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_last}}">
+<sc-if value="{{err.reg_last}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_last}}</p></sc-if>
+</div>
+<div>
+<label for="reg_birth" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Birthdate <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_birth" type="date" max="2008-10-23" autocomplete="bday" value="{{f.reg_birth}}" onChange="{{on.reg_birth}}" aria-invalid="{{inv.reg_birth}}" aria-required="true" aria-describedby="reg_birth-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; color-scheme: dark; border: 1px solid {{bc.reg_birth}}">
+<p id="reg_birth-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">MM/DD/YYYY · applicants must be 18 or older.</p>
+<sc-if value="{{err.reg_birth}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_birth}}</p></sc-if>
+</div>
+</div>
+</fieldset>
+
+<fieldset style="margin: 0; border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; background: rgba(255,255,255,0.04)">
+<legend style="padding: 0 8px; font-weight: 600; color: #F5B800">Contact and address</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<div>
+<label for="reg_email" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Email address <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_email" type="email" autocomplete="email" placeholder="name@example.com" value="{{f.reg_email}}" onChange="{{on.reg_email}}" aria-invalid="{{inv.reg_email}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_email}}">
+<sc-if value="{{err.reg_email}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_email}}</p></sc-if>
+</div>
+<div>
+<label for="reg_phone" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Mobile number <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_phone" type="tel" autocomplete="tel" placeholder="09XX XXX XXXX" value="{{f.reg_phone}}" onChange="{{on.reg_phone}}" aria-invalid="{{inv.reg_phone}}" aria-required="true" aria-describedby="reg_phone-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_phone}}">
+<p id="reg_phone-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">11 digits starting with 09.</p>
+<sc-if value="{{err.reg_phone}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_phone}}</p></sc-if>
+</div>
+<div>
+<label for="reg_block" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Block <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_block" type="text" inputmode="numeric" value="{{f.reg_block}}" onChange="{{on.reg_block}}" aria-invalid="{{inv.reg_block}}" aria-required="true" aria-describedby="reg_block-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_block}}">
+<p id="reg_block-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">Number only, 1–50.</p>
+<sc-if value="{{err.reg_block}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_block}}</p></sc-if>
+</div>
+<div>
+<label for="reg_lot" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Lot <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_lot" type="text" inputmode="numeric" value="{{f.reg_lot}}" onChange="{{on.reg_lot}}" aria-invalid="{{inv.reg_lot}}" aria-required="true" aria-describedby="reg_lot-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_lot}}">
+<p id="reg_lot-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">Number only, 1–60.</p>
+<sc-if value="{{err.reg_lot}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_lot}}</p></sc-if>
+</div>
+</div>
+</fieldset>
+
+<fieldset style="margin: 0; border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; background: rgba(255,255,255,0.04)">
+<legend style="padding: 0 8px; font-weight: 600; color: #F5B800">Account</legend>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<div>
+<label for="reg_user" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Username <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_user" type="text" autocomplete="username" value="{{f.reg_user}}" onChange="{{on.reg_user}}" aria-invalid="{{inv.reg_user}}" aria-required="true" aria-describedby="reg_user-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_user}}">
+<p id="reg_user-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">6–20 letters, numbers, dots or underscores.</p>
+<sc-if value="{{err.reg_user}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_user}}</p></sc-if>
+</div>
+<div></div>
+<div>
+<label for="reg_pw" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Password <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_pw" type="password" autocomplete="new-password" value="{{f.reg_pw}}" onChange="{{on.reg_pw}}" aria-invalid="{{inv.reg_pw}}" aria-required="true" aria-describedby="reg_pw-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_pw}}">
+<p id="reg_pw-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">At least 8 characters, with a letter and a number.</p>
+<sc-if value="{{err.reg_pw}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_pw}}</p></sc-if>
+</div>
+<div>
+<label for="reg_pw2" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Confirm password <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="reg_pw2" type="password" autocomplete="new-password" value="{{f.reg_pw2}}" onChange="{{on.reg_pw2}}" aria-invalid="{{inv.reg_pw2}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.reg_pw2}}">
+<sc-if value="{{err.reg_pw2}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_pw2}}</p></sc-if>
+</div>
+</div>
+</fieldset>
+
+<fieldset style="margin: 0; border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; background: rgba(255,255,255,0.04)">
+<legend style="padding: 0 8px; font-weight: 600; color: #F5B800">Proof of residency</legend>
+<label for="reg_file" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Upload document <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<div style="border: 2px dashed {{bc.reg_file}}; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+<div style="display: flex; gap: 12px; align-items: center">
+<svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F5B800" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>
+<div>
+<sc-if value="{{regFile}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-weight: 600">{{regFile.name}}</p><p style="margin: 0; font-size: 13px; color: #86EFAC">✓ Ready to upload · {{regFile.size}}</p></sc-if>
+<sc-if value="{{noRegFile}}" hint-placeholder-val="{{ true }}"><p style="margin: 0; font-weight: 500">Barangay certificate, utility bill or lease contract</p><p id="reg_file-help" style="margin: 0; font-size: 13px; color: #B8BFCC">JPG, PNG or PDF · up to 5 MB · name and address must be readable</p></sc-if>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<input id="reg_file" type="file" accept=".jpg,.jpeg,.png,.pdf" onChange="{{on.reg_file}}" aria-invalid="{{inv.reg_file}}" aria-required="true" aria-describedby="reg_file-help" style="font-family: inherit; font-size: 13px; color: #E5E7EB; max-width: 240px">
+<button type="button" onClick="{{useSampleFile}}" style="min-height: 40px; padding: 0 14px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">Use sample file</button>
+</div>
+</div>
+<sc-if value="{{err.reg_file}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_file}}</p></sc-if>
+<div style="margin-top: 18px; display: flex; gap: 10px; align-items: flex-start">
+<input id="reg_privacy" type="checkbox" checked="{{f.reg_privacy}}" onChange="{{on.reg_privacy}}" aria-invalid="{{inv.reg_privacy}}" style="width: 22px; height: 22px; margin: 1px 0 0; accent-color: #F5B800; flex: none">
+<label for="reg_privacy" style="font-size: 14px; color: #E5E7EB">I have read the privacy notice and agree to the collection and processing of my information for residency verification. <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+</div>
+<sc-if value="{{err.reg_privacy}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.reg_privacy}}</p></sc-if>
+</fieldset>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center">
+<p style="margin: 0; font-size: 14px; color: #C9CED8">Already registered? <button type="button" onClick="{{goLogin}}" style="background: none; border: none; padding: 0; color: #93C5FD; text-decoration: underline; font-size: 14px; min-height: 44px">Log in</button></p>
+<div style="display: flex; gap: 12px">
+<button type="button" onClick="{{goLanding}}" style="min-height: 48px; padding: 0 22px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Cancel</button>
+<button type="submit" disabled="{{busy.reg}}" style="min-height: 48px; padding: 0 24px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px">
+<sc-if value="{{busy.reg}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 16px; height: 16px; border: 2px solid #1A1A1A; border-right-color: transparent; border-radius: 50%; animation: dvspin 0.8s linear infinite"></span>Uploading and submitting…</sc-if>
+<sc-if value="{{idle.reg}}" hint-placeholder-val="{{ true }}">Submit registration</sc-if>
+</button>
+</div>
+</div>
+</form>
+</main>
+</sc-if>
+
+<!-- SCR-05 LOGIN -->
+<sc-if value="{{s.login}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 56px 24px 72px; display: flex; flex-direction: column; align-items: center; gap: 16px">
+<section aria-labelledby="login-h" style="width: 100%; max-width: 440px; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 32px">
+<h1 id="login-h" style="margin: 0 0 4px; font-size: 26px">Log in</h1>
+<p style="margin: 0 0 20px; color: #C9CED8; font-size: 14px">For approved residents and administrators.</p>
+<sc-if value="{{notice}}" hint-placeholder-val="{{ false }}"><div role="status" style="background: #0B1E3F; border: 1px solid #60A5FA; color: #DBEAFE; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 14px">ⓘ {{notice}}</div></sc-if>
+<sc-if value="{{formErr}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; gap: 10px; background: {{formErr.bg}}; border: 1px solid {{formErr.border}}; color: {{formErr.fg}}; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; font-size: 14px">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+<div><strong>{{formErr.title}}</strong><br>{{formErr.text}}
+<sc-if value="{{formErr.statusLink}}" hint-placeholder-val="{{ false }}"><br><button type="button" onClick="{{formErr.openStatus}}" style="background: none; border: none; padding: 0; margin-top: 4px; color: inherit; text-decoration: underline; font-weight: 600; font-size: 14px; min-height: 32px">View application status</button></sc-if>
+</div>
+</div>
+</sc-if>
+<form onSubmit="{{submitLogin}}" novalidate="true" style="display: flex; flex-direction: column; gap: 16px">
+<div>
+<label for="login_u" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Username or email</label>
+<input id="login_u" type="text" autocomplete="username" value="{{f.login_u}}" onChange="{{on.login_u}}" aria-invalid="{{inv.login_u}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.login_u}}">
+<sc-if value="{{err.login_u}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.login_u}}</p></sc-if>
+</div>
+<div>
+<label for="login_p" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Password</label>
+<div style="display: flex; gap: 8px">
+<input id="login_p" type="{{pwType}}" autocomplete="current-password" value="{{f.login_p}}" onChange="{{on.login_p}}" aria-invalid="{{inv.login_p}}" aria-required="true" style="flex: 1; min-width: 0; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.login_p}}">
+<button type="button" onClick="{{togglePw}}" aria-pressed="{{pwShownAria}}" aria-controls="login_p" style="min-height: 44px; min-width: 64px; padding: 0 10px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">{{pwToggleLabel}}</button>
+</div>
+<sc-if value="{{err.login_p}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.login_p}}</p></sc-if>
+</div>
+<div style="display: flex; justify-content: flex-end; margin-top: -6px"><button type="button" onClick="{{goForgot}}" style="background: none; border: none; padding: 0; color: #93C5FD; text-decoration: underline; font-size: 14px; min-height: 36px">Forgot password?</button></div>
+<button type="submit" disabled="{{busy.login}}" style="min-height: 48px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+<sc-if value="{{busy.login}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 16px; height: 16px; border: 2px solid #1A1A1A; border-right-color: transparent; border-radius: 50%; animation: dvspin 0.8s linear infinite"></span>Logging in…</sc-if>
+<sc-if value="{{idle.login}}" hint-placeholder-val="{{ true }}">Log in</sc-if>
+</button>
+</form>
+<p style="margin: 20px 0 0; text-align: center; font-size: 14px; color: #C9CED8">New resident? <button type="button" onClick="{{goRegister}}" style="background: none; border: none; padding: 0; color: #93C5FD; text-decoration: underline; font-size: 14px; min-height: 36px">Create an account</button></p>
+</section>
+<aside aria-label="Prototype test accounts" style="width: 100%; max-width: 440px; box-sizing: border-box; border: 1px dashed #4B5563; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #C9CED8">
+<strong style="color: #F5B800">Prototype test accounts</strong><br>Resident: maria.santos / resident123<br>Admin: admin / admin123<br>Pending: liza.navarro / resident123 · Rejected: grace.lim / resident123
+</aside>
+</main>
+</sc-if>
+
+<!-- SCR-06 FORGOT PASSWORD -->
+<sc-if value="{{s.forgot}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 56px 24px 72px; display: flex; justify-content: center">
+<section aria-labelledby="fg-h" style="width: 100%; max-width: 440px; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 32px">
+<h1 id="fg-h" style="margin: 0 0 4px; font-size: 26px">Reset your password</h1>
+<sc-if value="{{fgForm}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0 0 20px; color: #C9CED8; font-size: 14px">Enter the email you registered with. We'll send a link to set a new password.</p>
+<form onSubmit="{{submitForgot}}" novalidate="true" style="display: flex; flex-direction: column; gap: 16px">
+<div>
+<label for="fg_email" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Email address</label>
+<input id="fg_email" type="email" autocomplete="email" placeholder="name@example.com" value="{{f.fg_email}}" onChange="{{on.fg_email}}" aria-invalid="{{inv.fg_email}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.fg_email}}">
+<sc-if value="{{err.fg_email}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.fg_email}}</p></sc-if>
+</div>
+<button type="submit" disabled="{{busy.fg}}" style="min-height: 48px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 16px; font-weight: 600">
+<sc-if value="{{busy.fg}}" hint-placeholder-val="{{ false }}">Sending…</sc-if><sc-if value="{{idle.fg}}" hint-placeholder-val="{{ true }}">Send reset link</sc-if>
+</button>
+</form>
+</sc-if>
+<sc-if value="{{fgSent}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="background: #052E1C; border: 1px solid #22C55E; color: #DCFCE7; border-radius: 10px; padding: 14px 16px; margin: 12px 0 20px; font-size: 14px">✓ <strong>Check your email.</strong><br>If an account exists for {{f.fg_email}}, a reset link is on its way. The link expires in 30 minutes.</div>
+<button type="button" onClick="{{resendReset}}" style="min-height: 44px; width: 100%; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Use a different email</button>
+</sc-if>
+<p style="margin: 20px 0 0; text-align: center"><button type="button" onClick="{{goLogin}}" style="background: none; border: none; padding: 0; color: #93C5FD; text-decoration: underline; font-size: 14px; min-height: 44px">← Back to log in</button></p>
+</section>
+</main>
+</sc-if>
+
+<!-- SCR-09 REGISTRATION STATUS -->
+<sc-if value="{{s.status}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 48px 24px 72px; display: flex; justify-content: center">
+<section aria-labelledby="st-h" style="width: 100%; max-width: 640px; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 32px">
+<p style="margin: 0; font-size: 13px; color: #B8BFCC">Application {{app.ref}} · submitted {{app.submitted}}</p>
+<h1 id="st-h" style="margin: 4px 0 8px; font-size: 26px">{{app.headline}}</h1>
+<p style="margin: 0 0 8px; color: #D1D5DB">{{app.message}}</p>
+<p style="margin: 0 0 24px"><span style="display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{app.b.bg}}; color: {{app.b.fg}}">{{app.b.text}}</span></p>
+<ol aria-label="Application progress" style="list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-direction: column; gap: 0">
+<sc-for list="{{app.steps}}" as="st" hint-placeholder-count="4">
+<li style="display: flex; gap: 14px; padding-bottom: 16px">
+<span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 50%; background: {{st.dot}}; color: {{st.dotFg}}; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">{{st.mark}}</span>
+<span><strong>{{st.label}}</strong> <span style="font-size: 13px; color: #B8BFCC">— {{st.state}}</span><br><span style="font-size: 14px; color: #C9CED8">{{st.detail}}</span></span>
+</li>
+</sc-for>
+</ol>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end">
+<button type="button" onClick="{{goLanding}}" style="min-height: 44px; padding: 0 20px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Back to home</button>
+<button type="button" onClick="{{goLogin}}" style="min-height: 44px; padding: 0 20px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Go to log in</button>
+</div>
+</section>
+</main>
+</sc-if>
+
+<!-- SCR-22 ACCESS RESTRICTED -->
+<sc-if value="{{s.denied}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 72px 24px; display: flex; justify-content: center">
+<section aria-labelledby="dn-h" style="max-width: 520px; text-align: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 40px 32px">
+<svg aria-hidden="true" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+<h1 id="dn-h" style="margin: 12px 0 8px; font-size: 26px">You don't have access to this page</h1>
+<p style="margin: 0 0 24px; color: #D1D5DB">{{deniedText}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center">
+<button type="button" onClick="{{goHome}}" style="min-height: 44px; padding: 0 20px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Go to my dashboard</button>
+<button type="button" onClick="{{askLogout}}" style="min-height: 44px; padding: 0 20px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Log in with another account</button>
+</div>
+</section>
+</main>
+</sc-if>
+
+<!-- ============ AUTHENTICATED LAYOUT (sidebar + content) ============ -->
+<sc-if value="{{appLayout}}" hint-placeholder-val="{{ false }}">
+<div style="max-width: 1440px; margin: 0 auto; padding: 24px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<aside style="flex: 1 1 220px; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 12px">
+<nav aria-label="{{sideLabel}}">
+<p style="margin: 4px 8px 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #B8BFCC">{{sideLabel}}</p>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{side}}" as="it" hint-placeholder-count="5">
+<li><button type="button" onClick="{{it.go}}" aria-current="{{it.cur}}" style="width: 100%; min-height: 44px; padding: 8px 12px; border: none; border-radius: 8px; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; background: {{it.bg}}; color: {{it.fg}}; font-weight: {{it.fw}}">{{it.label}}<sc-if value="{{it.hasCount}}" hint-placeholder-val="{{ false }}"><span style="min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: #DC2626; color: #FFFFFF; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">{{it.count}}<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)"> {{it.countLabel}}</span></span></sc-if></button></li>
+</sc-for>
+</ul>
+</nav>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0">
+<nav aria-label="Breadcrumb" style="margin-bottom: 8px">
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; color: #B8BFCC">
+<sc-for list="{{crumbs}}" as="c" hint-placeholder-count="2">
+<li style="display: flex; gap: 6px; align-items: center"><sc-if value="{{c.sep}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true">/</span></sc-if><sc-if value="{{c.link}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{c.go}}" style="background: none; border: none; padding: 0; color: #93C5FD; text-decoration: underline; font-size: 13px; min-height: 28px">{{c.label}}</button></sc-if><sc-if value="{{c.here}}" hint-placeholder-val="{{ false }}"><span aria-current="page" style="color: #E5E7EB">{{c.label}}</span></sc-if></li>
+</sc-for>
+</ol>
+</nav>
+
+<!-- SCR-07 RESIDENT LANDING -->
+<sc-if value="{{s.rhome}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="rh-h" style="background: #0E131D; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 36px 28px; text-align: center; margin-bottom: 20px">
+<h1 id="rh-h" style="margin: 0 0 6px; font-size: 32px">Welcome, {{userFirst}}!</h1>
+<p style="margin: 0 0 22px; color: #D1D5DB">Stay updated with announcements, concerns and dues — all in one place.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; max-width: 760px; margin: 0 auto">
+<button type="button" onClick="{{goAnn}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">View announcements</button>
+<button type="button" onClick="{{goComplain}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">Post a complaint</button>
+<button type="button" onClick="{{goMyComp}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">My complaints</button>
+<button type="button" onClick="{{goDues}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">View dues</button>
+</div>
+</section>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<section aria-labelledby="rc1" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<h2 id="rc1" style="margin: 0; font-size: 14px; font-weight: 500; color: #B8BFCC">Dues balance</h2>
+<p style="margin: 0; font-size: 28px; font-weight: 700">{{duesBalance}}</p>
+<p style="margin: 0; font-size: 14px; color: #D1D5DB">{{duesSummary}}</p>
+<sc-if value="{{hasUnpaid}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{payOldest}}" style="align-self: flex-start; margin-top: 8px; min-height: 44px; padding: 0 18px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Pay {{oldestLabel}}</button></sc-if>
+</section>
+<section aria-labelledby="rc2" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<h2 id="rc2" style="margin: 0; font-size: 14px; font-weight: 500; color: #B8BFCC">Open complaints</h2>
+<p style="margin: 0; font-size: 28px; font-weight: 700">{{openCompCount}}</p>
+<p style="margin: 0; font-size: 14px; color: #D1D5DB">{{openCompText}}</p>
+<button type="button" onClick="{{goMyComp}}" style="align-self: flex-start; margin-top: 8px; min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Track my complaints</button>
+</section>
+<section aria-labelledby="rc3" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<h2 id="rc3" style="margin: 0; font-size: 14px; font-weight: 500; color: #B8BFCC">Latest announcement</h2>
+<p style="margin: 0; font-size: 17px; font-weight: 600; color: #F5B800">{{latestAnn.title}}</p>
+<p style="margin: 0; font-size: 13px; color: #B8BFCC">{{latestAnn.dateText}}</p>
+<p style="margin: 0; font-size: 14px; color: #D1D5DB">{{latestAnn.body}}</p>
+<button type="button" onClick="{{goAnn}}" style="align-self: flex-start; margin-top: 8px; min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">See all announcements</button>
+</section>
+</div>
+</sc-if>
+
+<!-- SCR-08 RESIDENT VIEW ANNOUNCEMENTS -->
+<sc-if value="{{s.ann}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">View announcements</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">Official notices posted by the association.</p></div>
+<div style="width: 300px; max-width: 100%">
+<label for="search_ann" style="display: block; font-size: 13px; color: #C9CED8; margin-bottom: 4px">Search announcements</label>
+<input id="search_ann" type="search" placeholder="e.g. water, dues" value="{{f.search_ann}}" onChange="{{on.search_ann}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+</div>
+</div>
+<p role="status" style="margin: 0 0 12px; font-size: 13px; color: #B8BFCC">{{annCountText}}</p>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{annList}}" as="a" hint-placeholder-count="3">
+<article style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 18px; display: flex; flex-wrap: wrap; gap: 18px">
+<div aria-hidden="true" style="flex: 0 0 120px; height: 96px; border-radius: 10px; background: {{a.tile}}; display: flex; align-items: center; justify-content: center; color: #F3F4F6; font-size: 13px; font-weight: 600; text-align: center; padding: 6px; box-sizing: border-box">{{a.cat}}</div>
+<div style="flex: 1 1 300px; min-width: 0">
+<h2 style="margin: 0; font-size: 18px; color: #F5B800">{{a.title}}</h2>
+<p style="margin: 2px 0 8px; font-size: 13px; color: #B8BFCC">{{a.cat}} · Posted by {{a.by}} · {{a.dateText}}</p>
+<p style="margin: 0; color: #E5E7EB; max-width: 72ch">{{a.body}}</p>
+</div>
+</article>
+</sc-for>
+</div>
+<sc-if value="{{annEmpty}}" hint-placeholder-val="{{ false }}">
+<div style="text-align: center; padding: 40px 20px; border: 1px dashed #4B5563; border-radius: 14px">
+<p style="margin: 0 0 4px; font-weight: 600">No announcements match “{{f.search_ann}}”</p>
+<p style="margin: 0 0 16px; color: #C9CED8; font-size: 14px">Try another word, or clear the search to see all announcements.</p>
+<button type="button" onClick="{{clearAnnSearch}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Clear search</button>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- SCR-10 POST COMPLAINT -->
+<sc-if value="{{s.complain}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0; font-size: 28px; color: #F5B800">Post a complaint</h1>
+<p style="margin: 2px 0 16px; color: #C9CED8; font-size: 14px">Describe your concern. The association will review it and update its status. <span aria-hidden="true" style="color: #FCD34D">*</span> Required</p>
+<form onSubmit="{{submitComplaint}}" novalidate="true" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 18px; max-width: 760px">
+<div>
+<label for="cp_subject" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Subject <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="cp_subject" type="text" maxlength="100" placeholder="e.g. Streetlight out near Block 5" value="{{f.cp_subject}}" onChange="{{on.cp_subject}}" aria-invalid="{{inv.cp_subject}}" aria-required="true" aria-describedby="cp_subject-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.cp_subject}}">
+<p id="cp_subject-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">5–100 characters.</p>
+<sc-if value="{{err.cp_subject}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.cp_subject}}</p></sc-if>
+</div>
+<div>
+<label for="cp_cat" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Category <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<select id="cp_cat" value="{{f.cp_cat}}" onChange="{{on.cp_cat}}" aria-invalid="{{inv.cp_cat}}" aria-required="true" style="width: 100%; max-width: 320px; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.cp_cat}}">
+<option value="">Choose a category</option>
+<option value="Noise">Noise</option>
+<option value="Sanitation">Sanitation / garbage</option>
+<option value="Security">Security</option>
+<option value="Facilities">Facilities / streetlights</option>
+<option value="Others">Others</option>
+</select>
+<sc-if value="{{err.cp_cat}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.cp_cat}}</p></sc-if>
+</div>
+<div>
+<label for="cp_details" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Details <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<textarea id="cp_details" rows="5" maxlength="1000" placeholder="What happened, where, and when?" value="{{f.cp_details}}" onChange="{{on.cp_details}}" aria-invalid="{{inv.cp_details}}" aria-required="true" aria-describedby="cp_details-help" style="width: 100%; box-sizing: border-box; min-height: 130px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; resize: vertical; border: 1px solid {{bc.cp_details}}"></textarea>
+<p id="cp_details-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">20–1000 characters · {{cpCount}}/1000</p>
+<sc-if value="{{err.cp_details}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.cp_details}}</p></sc-if>
+</div>
+<div>
+<label for="cp_photo" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Attach photo (optional)</label>
+<input id="cp_photo" type="file" accept=".jpg,.jpeg,.png" onChange="{{on.cp_photo}}" aria-invalid="{{inv.cp_photo}}" aria-describedby="cp_photo-help" style="font-family: inherit; font-size: 14px; color: #E5E7EB">
+<p id="cp_photo-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">JPG or PNG, up to 5 MB.</p>
+<sc-if value="{{err.cp_photo}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.cp_photo}}</p></sc-if>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end">
+<button type="button" onClick="{{cancelComplaint}}" style="min-height: 48px; padding: 0 22px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Cancel</button>
+<button type="submit" disabled="{{busy.comp}}" style="min-height: 48px; padding: 0 24px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px">
+<sc-if value="{{busy.comp}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 16px; height: 16px; border: 2px solid #1A1A1A; border-right-color: transparent; border-radius: 50%; animation: dvspin 0.8s linear infinite"></span>Submitting…</sc-if>
+<sc-if value="{{idle.comp}}" hint-placeholder-val="{{ true }}">Submit complaint</sc-if>
+</button>
+</div>
+</form>
+</sc-if>
+
+<!-- SCR-11 MY COMPLAINTS -->
+<sc-if value="{{s.mycomp}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">My complaints submitted</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">Track the status of concerns you've filed.</p></div>
+<button type="button" onClick="{{goComplain}}" style="min-height: 44px; padding: 0 18px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">+ Post a complaint</button>
+</div>
+<div role="group" aria-label="Filter by status" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px">
+<sc-for list="{{myTabs}}" as="t" hint-placeholder-count="4">
+<button type="button" onClick="{{t.pick}}" aria-pressed="{{t.sel}}" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: {{t.bg}}; color: {{t.fg}}; font-size: 14px; font-weight: 500">{{t.label}} ({{t.count}})</button>
+</sc-for>
+</div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; overflow-x: auto">
+<div role="table" aria-label="My complaints" style="min-width: 720px">
+<div role="row" style="display: grid; grid-template-columns: 90px minmax(0, 2.4fr) 120px 130px 140px 90px; gap: 12px; padding: 12px 16px; background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600; color: #D1D5DB">
+<span role="columnheader">ID</span><span role="columnheader">Subject</span><span role="columnheader">Category</span><span role="columnheader">Submitted</span><span role="columnheader">Status</span><span role="columnheader">Details</span>
+</div>
+<sc-for list="{{myRows}}" as="r" hint-placeholder-count="2">
+<div role="rowgroup" style="border-top: 1px solid rgba(255,255,255,0.1); background: {{r.hl}}">
+<div role="row" style="display: grid; grid-template-columns: 90px minmax(0, 2.4fr) 120px 130px 140px 90px; gap: 12px; padding: 12px 16px; align-items: center; font-size: 14px">
+<span role="cell" style="font-weight: 600">{{r.id}}</span>
+<span role="cell">{{r.subject}}</span>
+<span role="cell" style="color: #D1D5DB">{{r.cat}}</span>
+<span role="cell" style="color: #D1D5DB">{{r.dateText}}</span>
+<span role="cell"><span style="display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: {{r.b.bg}}; color: {{r.b.fg}}">{{r.b.text}}</span></span>
+<span role="cell"><button type="button" onClick="{{r.toggle}}" aria-expanded="{{r.openAria}}" aria-label="{{r.toggleAria}}" style="min-height: 36px; padding: 0 12px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">{{r.toggleLabel}}</button></span>
+</div>
+<sc-if value="{{r.open}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 0 16px 16px 118px; display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px">
+<div style="flex: 2 1 280px"><p style="margin: 0 0 4px; font-size: 13px; color: #B8BFCC">Your report</p><p style="margin: 0; color: #E5E7EB">{{r.details}}</p><p style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">Photo: {{r.photo}}</p></div>
+<div style="flex: 1 1 220px; background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px"><p style="margin: 0 0 4px; font-size: 13px; color: #B8BFCC">Update from the association · {{r.updated}}</p><p style="margin: 0; color: #E5E7EB">{{r.note}}</p></div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+<sc-if value="{{myEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding: 32px 16px; text-align: center; color: #C9CED8; border-top: 1px solid rgba(255,255,255,0.1)">No complaints with this status.</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<!-- SCR-12 VIEW DUES -->
+<sc-if value="{{s.dues}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0; font-size: 28px; color: #F5B800">My dues</h1>
+<p style="margin: 2px 0 16px; color: #C9CED8; font-size: 14px">Monthly association fee: ₱840.00, due on the last day of each month · {{myAddress}}</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px">
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #F5B800; border-radius: 14px; padding: 16px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Balance</p><p style="margin: 0; font-size: 26px; font-weight: 700">{{duesBalance}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #F87171; border-radius: 14px; padding: 16px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Overdue months</p><p style="margin: 0; font-size: 26px; font-weight: 700">{{overdueCount}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #FCD34D; border-radius: 14px; padding: 16px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Unpaid, not yet due</p><p style="margin: 0; font-size: 26px; font-weight: 700">{{unpaidOnlyCount}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #4ADE80; border-radius: 14px; padding: 16px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Paid months</p><p style="margin: 0; font-size: 26px; font-weight: 700">{{paidCount}}</p></div>
+</div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; overflow-x: auto">
+<div role="table" aria-label="Dues and payment history" style="min-width: 860px">
+<div role="row" style="display: grid; grid-template-columns: 150px 110px 120px 120px 100px 130px minmax(0, 1fr); gap: 12px; padding: 12px 16px; background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600; color: #D1D5DB">
+<span role="columnheader">Billing month</span><span role="columnheader">Amount</span><span role="columnheader">Due date</span><span role="columnheader">Status</span><span role="columnheader">Method</span><span role="columnheader">Date paid</span><span role="columnheader">Action</span>
+</div>
+<sc-for list="{{myDues}}" as="d" hint-placeholder-count="4">
+<div role="row" style="display: grid; grid-template-columns: 150px 110px 120px 120px 100px 130px minmax(0, 1fr); gap: 12px; padding: 12px 16px; align-items: center; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.1)">
+<span role="cell" style="font-weight: 600">{{d.periodText}}</span>
+<span role="cell">{{d.amountText}}</span>
+<span role="cell" style="color: #D1D5DB">{{d.dueText}}</span>
+<span role="cell"><span style="display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: {{d.b.bg}}; color: {{d.b.fg}}">{{d.b.text}}</span></span>
+<span role="cell" style="color: #D1D5DB">{{d.methodText}}</span>
+<span role="cell" style="color: #D1D5DB">{{d.paidText}}</span>
+<span role="cell">
+<sc-if value="{{d.canPay}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{d.pay}}" aria-label="{{d.payAria}}" style="min-height: 36px; padding: 0 12px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 13px; font-weight: 600">Pay with QR Ph</button></sc-if>
+<sc-if value="{{d.isPaid}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{d.receipt}}" aria-label="{{d.rcptAria}}" style="min-height: 36px; padding: 0 12px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">View receipt</button></sc-if>
+</span>
+</div>
+</sc-for>
+</div>
+</div>
+<p style="margin: 12px 0 0; font-size: 13px; color: #B8BFCC">Paying onsite? Bring your billing month to the association office; the administrator records it and your receipt appears here.</p>
+</sc-if>
+
+<!-- SCR-15 PROFILE -->
+<sc-if value="{{s.profile}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 16px; font-size: 28px; color: #F5B800">Profile details</h1>
+<div style="display: flex; flex-direction: column; gap: 18px; max-width: 820px">
+<section style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px; display: flex; gap: 16px; align-items: center">
+<span aria-hidden="true" style="width: 72px; height: 72px; border-radius: 50%; background: #2B5FC4; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; flex: none">{{userInitials}}</span>
+<div><p style="margin: 0; font-size: 20px; font-weight: 600">{{prof.fullName}}</p><p style="margin: 0; color: #C9CED8; font-size: 14px">{{prof.sub}}</p><p style="margin: 0; color: #B8BFCC; font-size: 13px">Username: {{prof.username}}</p></div>
+</section>
+<form onSubmit="{{saveProfile}}" novalidate="true" aria-labelledby="pe-h" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px">
+<h2 id="pe-h" style="margin: 0 0 14px; font-size: 17px">Editable information</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<div>
+<label for="pr_phone" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Mobile number</label>
+<input id="pr_phone" type="tel" value="{{f.pr_phone}}" onChange="{{on.pr_phone}}" aria-invalid="{{inv.pr_phone}}" aria-describedby="pr_phone-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.pr_phone}}">
+<p id="pr_phone-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">11 digits starting with 09.</p>
+<sc-if value="{{err.pr_phone}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.pr_phone}}</p></sc-if>
+</div>
+<div>
+<label for="pr_email" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Email address</label>
+<input id="pr_email" type="email" value="{{f.pr_email}}" onChange="{{on.pr_email}}" aria-invalid="{{inv.pr_email}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.pr_email}}">
+<sc-if value="{{err.pr_email}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.pr_email}}</p></sc-if>
+</div>
+</div>
+<p style="margin: 12px 0 0; font-size: 13px; color: #B8BFCC">Name and address changes need a new proof of residency — contact the association office.</p>
+<div style="display: flex; justify-content: flex-end; margin-top: 14px"><button type="submit" style="min-height: 44px; padding: 0 20px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Save changes</button></div>
+</form>
+<sc-if value="{{isRes}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="pp-h" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px">
+<h2 id="pp-h" style="margin: 0 0 4px; font-size: 17px">Proof of residency</h2>
+<p style="margin: 0 0 14px; font-size: 13px; color: #B8BFCC">Visible only to you and authorized administrators.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+<div role="img" aria-label="Thumbnail of uploaded barangay certificate" style="width: 140px; height: 180px; background: #FFFFFF; border-radius: 6px; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+<div style="height: 10px; background: #CBD5E1; border-radius: 2px; width: 70%; align-self: center"></div><div style="height: 6px; background: #E2E8F0; border-radius: 2px; width: 50%; align-self: center"></div><div style="height: 6px; background: #E2E8F0; border-radius: 2px; margin-top: 10px"></div><div style="height: 6px; background: #E2E8F0; border-radius: 2px"></div><div style="height: 6px; background: #E2E8F0; border-radius: 2px; width: 80%"></div><div style="height: 6px; background: #E2E8F0; border-radius: 2px"></div><div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #CBD5E1; margin-top: auto; align-self: flex-end"></div>
+</div>
+<div style="font-size: 14px"><p style="margin: 0; font-weight: 600">{{prof.doc}}</p><p style="margin: 0; color: #C9CED8">Uploaded {{prof.submitted}} · Verified by administrator</p></div>
+</div>
+</section>
+</sc-if>
+<form onSubmit="{{changePassword}}" novalidate="true" aria-labelledby="cpw-h" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 20px">
+<h2 id="cpw-h" style="margin: 0 0 14px; font-size: 17px">Change password</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+<div>
+<label for="pw_cur" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Current password</label>
+<input id="pw_cur" type="password" autocomplete="current-password" value="{{f.pw_cur}}" onChange="{{on.pw_cur}}" aria-invalid="{{inv.pw_cur}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.pw_cur}}">
+<sc-if value="{{err.pw_cur}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.pw_cur}}</p></sc-if>
+</div>
+<div>
+<label for="pw_new" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">New password</label>
+<input id="pw_new" type="password" autocomplete="new-password" value="{{f.pw_new}}" onChange="{{on.pw_new}}" aria-invalid="{{inv.pw_new}}" aria-describedby="pw_new-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.pw_new}}">
+<p id="pw_new-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">8+ characters, a letter and a number.</p>
+<sc-if value="{{err.pw_new}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.pw_new}}</p></sc-if>
+</div>
+<div>
+<label for="pw_conf" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Confirm new password</label>
+<input id="pw_conf" type="password" autocomplete="new-password" value="{{f.pw_conf}}" onChange="{{on.pw_conf}}" aria-invalid="{{inv.pw_conf}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.pw_conf}}">
+<sc-if value="{{err.pw_conf}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.pw_conf}}</p></sc-if>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; margin-top: 14px"><button type="submit" style="min-height: 44px; padding: 0 20px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Update password</button></div>
+</form>
+</div>
+</sc-if>
+
+<!-- SCR-16 ADMIN DASHBOARD -->
+<sc-if value="{{s.ahome}}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="ah-h" style="background: #0E131D; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 32px 28px; text-align: center; margin-bottom: 20px">
+<h1 id="ah-h" style="margin: 0 0 6px; font-size: 32px">Welcome, Admin {{userFirst}}!</h1>
+<p style="margin: 0 0 20px; color: #D1D5DB">Manage residents, announcements, complaints and dues.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; max-width: 820px; margin: 0 auto">
+<button type="button" onClick="{{goARes}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">Manage resident accounts</button>
+<button type="button" onClick="{{goAAnn}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">Post announcements</button>
+<button type="button" onClick="{{goAComp}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">View complaints</button>
+<button type="button" onClick="{{goADues}}" style="min-height: 48px; background: #FFFFFF; color: #1F2937; border: none; border-radius: 8px; font-weight: 600">Manage dues</button>
+</div>
+</section>
+<h2 style="margin: 0 0 12px; font-size: 18px">Needs your attention</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<button type="button" onClick="{{goAResPending}}" style="text-align: left; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #FCD34D; border-radius: 14px; padding: 16px; color: #F3F4F6"><span style="display: block; font-size: 13px; color: #B8BFCC">Pending applications</span><span style="display: block; font-size: 28px; font-weight: 700">{{pendingCount}}</span><span style="display: block; font-size: 13px; color: #93C5FD; text-decoration: underline">Review applications</span></button>
+<button type="button" onClick="{{goACompNew}}" style="text-align: left; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #60A5FA; border-radius: 14px; padding: 16px; color: #F3F4F6"><span style="display: block; font-size: 13px; color: #B8BFCC">New complaints</span><span style="display: block; font-size: 28px; font-weight: 700">{{newComp}}</span><span style="display: block; font-size: 13px; color: #93C5FD; text-decoration: underline">Open complaints</span></button>
+<button type="button" onClick="{{goADues}}" style="text-align: left; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #F87171; border-radius: 14px; padding: 16px; color: #F3F4F6"><span style="display: block; font-size: 13px; color: #B8BFCC">Unpaid · {{curMonthLabel}}</span><span style="display: block; font-size: 28px; font-weight: 700">{{curUnpaid}}</span><span style="display: block; font-size: 13px; color: #93C5FD; text-decoration: underline">Go to dues</span></button>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #4ADE80; border-radius: 14px; padding: 16px"><span style="display: block; font-size: 13px; color: #B8BFCC">Collected · {{curMonthLabel}}</span><span style="display: block; font-size: 28px; font-weight: 700">{{curCollected}}</span><span style="display: block; font-size: 13px; color: #C9CED8">{{curPaid}} of {{curTotal}} residents paid</span></div>
+</div>
+</sc-if>
+
+<!-- SCR-17 MANAGE RESIDENT ACCOUNTS -->
+<sc-if value="{{s.ares}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">Residents approval</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">Review registrations and verify proof of residency.</p></div>
+<div style="width: 300px; max-width: 100%">
+<label for="search_res" style="display: block; font-size: 13px; color: #C9CED8; margin-bottom: 4px">Search name, email or block</label>
+<input id="search_res" type="search" value="{{f.search_res}}" onChange="{{on.search_res}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px">
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #60A5FA; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Total registrations</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{resStats.total}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #FCD34D; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Pending</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{resStats.pending}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #4ADE80; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Approved</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{resStats.approved}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #F87171; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Rejected</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{resStats.rejected}}</p></div>
+</div>
+<div role="group" aria-label="Filter by status" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px">
+<sc-for list="{{resTabs}}" as="t" hint-placeholder-count="4">
+<button type="button" onClick="{{t.pick}}" aria-pressed="{{t.sel}}" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: {{t.bg}}; color: {{t.fg}}; font-size: 14px; font-weight: 500">{{t.label}} ({{t.count}})</button>
+</sc-for>
+</div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; overflow-x: auto">
+<div role="table" aria-label="Resident registrations" style="min-width: 1000px">
+<div role="row" style="display: grid; grid-template-columns: 36px minmax(0, 1.6fr) minmax(0, 1.8fr) 110px 130px 110px 120px 230px; gap: 12px; padding: 12px 16px; background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600; color: #D1D5DB">
+<span role="columnheader">#</span><span role="columnheader">Resident</span><span role="columnheader">Email</span><span role="columnheader">Block &amp; lot</span><span role="columnheader">Contact</span><span role="columnheader">OCR match</span><span role="columnheader">Status</span><span role="columnheader">Actions</span>
+</div>
+<sc-for list="{{resRows}}" as="r" hint-placeholder-count="5">
+<div role="row" style="display: grid; grid-template-columns: 36px minmax(0, 1.6fr) minmax(0, 1.8fr) 110px 130px 110px 120px 230px; gap: 12px; padding: 12px 16px; align-items: center; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.1)">
+<span role="cell" style="color: #B8BFCC">{{r.n}}</span>
+<span role="cell" style="display: flex; align-items: center; gap: 8px; min-width: 0"><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 50%; background: #374151; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">{{r.initials}}</span><span style="min-width: 0"><span style="display: block; font-weight: 600">{{r.name}}</span><span style="display: block; font-size: 12px; color: #B8BFCC">Applied {{r.submittedText}}</span></span></span>
+<span role="cell" style="color: #D1D5DB; overflow-wrap: anywhere">{{r.email}}</span>
+<span role="cell" style="color: #D1D5DB">{{r.blockLot}}</span>
+<span role="cell" style="color: #D1D5DB">{{r.phone}}</span>
+<span role="cell" style="color: {{r.confFg}}; font-weight: 600">{{r.confText}}</span>
+<span role="cell"><span style="display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: {{r.b.bg}}; color: {{r.b.fg}}">{{r.b.text}}</span></span>
+<span role="cell" style="display: flex; flex-wrap: wrap; gap: 6px">
+<button type="button" onClick="{{r.review}}" aria-label="{{r.reviewAria}}" style="min-height: 36px; padding: 0 10px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">{{r.reviewLabel}}</button>
+<sc-if value="{{r.isPending}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{r.approve}}" aria-label="{{r.approveAria}}" style="min-height: 36px; padding: 0 10px; background: #15803D; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600">Approve</button>
+<button type="button" onClick="{{r.reject}}" aria-label="{{r.rejectAria}}" style="min-height: 36px; padding: 0 10px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600">Reject</button>
+</sc-if>
+</span>
+</div>
+</sc-for>
+<sc-if value="{{resEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding: 32px 16px; text-align: center; color: #C9CED8; border-top: 1px solid rgba(255,255,255,0.1)">No residents match your search or filter. <button type="button" onClick="{{clearResFilters}}" style="background: none; border: none; color: #93C5FD; text-decoration: underline; font-size: 14px; min-height: 36px">Clear filters</button></div></sc-if>
+</div>
+</div>
+<p style="margin: 10px 0 0; font-size: 13px; color: #B8BFCC">Showing {{resRowsCount}} of {{resStats.total}} registrations</p>
+</sc-if>
+
+<!-- SCR-18 VERIFICATION REVIEW -->
+<sc-if value="{{s.averify}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">Verification review</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">{{v.name}} · Applied {{v.submitted}}</p></div>
+<span style="display: inline-flex; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{v.b.bg}}; color: {{v.b.fg}}">{{v.b.text}}</span>
+</div>
+<div role="note" style="background: #1B2333; border: 1px solid #3B4A66; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 14px; color: #DBEAFE">ⓘ OCR results help you compare details faster. They never approve an account automatically — the decision is yours.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section aria-labelledby="vd-h" style="flex: 1 1 300px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 18px">
+<h2 id="vd-h" style="margin: 0 0 12px; font-size: 16px">Uploaded document</h2>
+<div role="img" aria-label="{{v.docAria}}" style="background: #FFFFFF; border-radius: 6px; padding: 18px; display: flex; flex-direction: column; gap: 8px; height: 280px; box-sizing: border-box; filter: {{v.docBlur}}">
+<div style="height: 12px; background: #CBD5E1; border-radius: 2px; width: 60%; align-self: center"></div><div style="height: 8px; background: #E2E8F0; border-radius: 2px; width: 40%; align-self: center"></div><div style="height: 14px; background: #94A3B8; border-radius: 2px; width: 70%; align-self: center; margin-top: 12px"></div><div style="height: 7px; background: #E2E8F0; border-radius: 2px; margin-top: 14px"></div><div style="height: 7px; background: #E2E8F0; border-radius: 2px"></div><div style="height: 7px; background: #E2E8F0; border-radius: 2px; width: 85%"></div><div style="height: 7px; background: #E2E8F0; border-radius: 2px"></div><div style="height: 7px; background: #E2E8F0; border-radius: 2px; width: 60%"></div><div style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid #CBD5E1; margin-top: auto; align-self: flex-end"></div>
+</div>
+<p style="margin: 10px 0 0; font-size: 13px; color: #C9CED8">{{v.doc}} · {{v.fileName}}</p>
+</section>
+<section aria-labelledby="vo-h" style="flex: 2 1 420px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 18px">
+<h2 id="vo-h" style="margin: 0 0 12px; font-size: 16px">OCR comparison</h2>
+<sc-if value="{{v.ocrOk}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 16px">
+<p style="margin: 0; font-size: 36px; font-weight: 700">{{v.confText}}</p>
+<div style="flex: 1 1 200px">
+<p style="margin: 0 0 6px; font-size: 14px"><strong style="color: {{v.confFg}}">{{v.confLevel}}</strong> confidence that the document matches the registration</p>
+<div role="progressbar" aria-label="OCR confidence" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{v.conf}}" style="height: 10px; border-radius: 999px; background: #374151; overflow: hidden"><div style="height: 100%; width: {{v.confWidth}}; background: {{v.confFg}}"></div></div>
+</div>
+</div>
+<div role="table" aria-label="Registration versus extracted details" style="font-size: 14px">
+<div role="row" style="display: grid; grid-template-columns: 110px minmax(0, 1fr) minmax(0, 1fr) 110px; gap: 10px; padding: 8px 0; font-size: 13px; font-weight: 600; color: #D1D5DB; border-bottom: 1px solid rgba(255,255,255,0.14)"><span role="columnheader">Field</span><span role="columnheader">Registration</span><span role="columnheader">Extracted by OCR</span><span role="columnheader">Result</span></div>
+<sc-for list="{{vRows}}" as="x" hint-placeholder-count="4">
+<div role="row" style="display: grid; grid-template-columns: 110px minmax(0, 1fr) minmax(0, 1fr) 110px; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08)"><span role="cell" style="color: #B8BFCC">{{x.field}}</span><span role="cell">{{x.entered}}</span><span role="cell">{{x.extracted}}</span><span role="cell" style="color: {{x.fg}}; font-weight: 600">{{x.res}}</span></div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{v.ocrFail}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="background: #3A2A05; border: 1px solid #F59E0B; color: #FEF3C7; border-radius: 10px; padding: 14px 16px; font-size: 14px">
+<strong>OCR couldn't read this document.</strong><br>The image is too blurry to extract text. Compare the document with the registration manually below, or ask the applicant to upload a clearer copy.
+<div style="margin-top: 10px"><button type="button" onClick="{{retryOcr}}" style="min-height: 40px; padding: 0 14px; background: transparent; color: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; font-size: 13px">Retry OCR</button></div>
+</div>
+</sc-if>
+<h3 style="margin: 18px 0 8px; font-size: 14px; color: #D1D5DB">Registration details</h3>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 14px">
+<div><dt style="font-size: 12px; color: #B8BFCC">Full name</dt><dd style="margin: 0">{{v.name}}</dd></div>
+<div><dt style="font-size: 12px; color: #B8BFCC">Address</dt><dd style="margin: 0">{{v.blockLot}}</dd></div>
+<div><dt style="font-size: 12px; color: #B8BFCC">Birthdate</dt><dd style="margin: 0">{{v.birth}}</dd></div>
+<div><dt style="font-size: 12px; color: #B8BFCC">Email</dt><dd style="margin: 0; overflow-wrap: anywhere">{{v.email}}</dd></div>
+<div><dt style="font-size: 12px; color: #B8BFCC">Mobile</dt><dd style="margin: 0">{{v.phone}}</dd></div>
+<div><dt style="font-size: 12px; color: #B8BFCC">Username</dt><dd style="margin: 0">{{v.username}}</dd></div>
+</dl>
+<sc-if value="{{v.hasReason}}" hint-placeholder-val="{{ false }}"><p style="margin: 14px 0 0; font-size: 14px; color: #FECACA">Rejection reason: {{v.reason}}</p></sc-if>
+</section>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-top: 18px">
+<button type="button" onClick="{{goARes}}" style="min-height: 48px; padding: 0 20px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">← Back to list</button>
+<sc-if value="{{v.isPending}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 12px">
+<button type="button" onClick="{{v.reject}}" style="min-height: 48px; padding: 0 22px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Reject application</button>
+<button type="button" onClick="{{v.approve}}" style="min-height: 48px; padding: 0 22px; background: #15803D; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Approve resident</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- SCR-19 POST ANNOUNCEMENTS -->
+<sc-if value="{{s.aann}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">Post announcements</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">Published announcements appear immediately on residents' View Announcements page.</p></div>
+<sc-if value="{{anClosed}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{openAnnForm}}" style="min-height: 44px; padding: 0 18px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">+ Create announcement</button></sc-if>
+</div>
+<sc-if value="{{anOpen}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{publishAnn}}" novalidate="true" aria-labelledby="anf-h" style="background: rgba(255,255,255,0.08); border: 1px solid #F5B800; border-radius: 14px; padding: 20px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="anf-h" style="margin: 0; font-size: 18px">{{anFormTitle}}</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<div>
+<label for="an_title" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Title <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="an_title" type="text" maxlength="100" value="{{f.an_title}}" onChange="{{on.an_title}}" aria-invalid="{{inv.an_title}}" aria-required="true" aria-describedby="an_title-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.an_title}}">
+<p id="an_title-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">5–100 characters.</p>
+<sc-if value="{{err.an_title}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.an_title}}</p></sc-if>
+</div>
+<div>
+<label for="an_cat" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Category <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<select id="an_cat" value="{{f.an_cat}}" onChange="{{on.an_cat}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+<option value="General">General</option><option value="Dues">Dues</option><option value="Events">Events</option><option value="Sanitation">Sanitation</option><option value="Security">Security</option><option value="Utilities">Utilities</option>
+</select>
+</div>
+</div>
+<div>
+<label for="an_body" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Message <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<textarea id="an_body" rows="4" maxlength="2000" value="{{f.an_body}}" onChange="{{on.an_body}}" aria-invalid="{{inv.an_body}}" aria-required="true" aria-describedby="an_body-help" style="width: 100%; box-sizing: border-box; min-height: 110px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; resize: vertical; border: 1px solid {{bc.an_body}}"></textarea>
+<p id="an_body-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">10–2000 characters.</p>
+<sc-if value="{{err.an_body}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.an_body}}</p></sc-if>
+</div>
+<div>
+<label for="an_image" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Image (optional)</label>
+<input id="an_image" type="file" accept=".jpg,.jpeg,.png" onChange="{{on.an_image}}" style="font-family: inherit; font-size: 14px; color: #E5E7EB">
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end">
+<button type="button" onClick="{{closeAnnForm}}" style="min-height: 44px; padding: 0 20px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Cancel</button>
+<button type="submit" style="min-height: 44px; padding: 0 22px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">{{anSubmitLabel}}</button>
+</div>
+</form>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{adminAnn}}" as="a" hint-placeholder-count="3">
+<article style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 18px; display: flex; flex-wrap: wrap; gap: 18px">
+<div aria-hidden="true" style="flex: 0 0 120px; height: 96px; border-radius: 10px; background: {{a.tile}}; display: flex; align-items: center; justify-content: center; color: #F3F4F6; font-size: 13px; font-weight: 600">{{a.cat}}</div>
+<div style="flex: 1 1 300px; min-width: 0">
+<h2 style="margin: 0; font-size: 18px; color: #F5B800">{{a.title}}</h2>
+<p style="margin: 2px 0 8px; font-size: 13px; color: #B8BFCC">By {{a.by}} · {{a.dateText}}</p>
+<p style="margin: 0; color: #E5E7EB; max-width: 72ch">{{a.body}}</p>
+</div>
+<div style="display: flex; gap: 8px; align-items: flex-start">
+<button type="button" onClick="{{a.edit}}" aria-label="{{a.editAria}}" style="min-height: 36px; padding: 0 12px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">Edit</button>
+<button type="button" onClick="{{a.del}}" aria-label="{{a.delAria}}" style="min-height: 36px; padding: 0 12px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-size: 13px; font-weight: 600">Delete</button>
+</div>
+</article>
+</sc-for>
+<sc-if value="{{adminAnnEmpty}}" hint-placeholder-val="{{ false }}"><div style="text-align: center; padding: 40px 20px; border: 1px dashed #4B5563; border-radius: 14px; color: #C9CED8">No announcements yet. Create one to notify residents.</div></sc-if>
+</div>
+</sc-if>
+
+<!-- SCR-20 MANAGE COMPLAINTS -->
+<sc-if value="{{s.acomp}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">Manage complaints</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">Review and resolve resident complaints.</p></div>
+<div style="width: 300px; max-width: 100%">
+<label for="search_comp" style="display: block; font-size: 13px; color: #C9CED8; margin-bottom: 4px">Search ID, resident or subject</label>
+<input id="search_comp" type="search" value="{{f.search_comp}}" onChange="{{on.search_comp}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+</div>
+</div>
+<div role="group" aria-label="Filter by status" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px">
+<sc-for list="{{acTabs}}" as="t" hint-placeholder-count="4">
+<button type="button" onClick="{{t.pick}}" aria-pressed="{{t.sel}}" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: {{t.bg}}; color: {{t.fg}}; font-size: 14px; font-weight: 500">{{t.label}} ({{t.count}})</button>
+</sc-for>
+</div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; overflow-x: auto">
+<div role="table" aria-label="Resident complaints" style="min-width: 1040px">
+<div role="row" style="display: grid; grid-template-columns: 80px 160px minmax(0, 2fr) 110px 120px 250px 80px; gap: 12px; padding: 12px 16px; background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600; color: #D1D5DB">
+<span role="columnheader">ID</span><span role="columnheader">Resident</span><span role="columnheader">Subject / details</span><span role="columnheader">Submitted</span><span role="columnheader">Status</span><span role="columnheader">Update status</span><span role="columnheader">Remove</span>
+</div>
+<sc-for list="{{acRows}}" as="r" hint-placeholder-count="3">
+<div role="row" style="display: grid; grid-template-columns: 80px 160px minmax(0, 2fr) 110px 120px 250px 80px; gap: 12px; padding: 12px 16px; align-items: center; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.1)">
+<span role="cell" style="font-weight: 600">{{r.id}}</span>
+<span role="cell"><span style="display: block">{{r.resident}}</span><span style="display: block; font-size: 12px; color: #B8BFCC">{{r.blockLot}}</span></span>
+<span role="cell" style="min-width: 0"><span style="display: block; font-weight: 600">{{r.subject}}</span><span style="display: block; font-size: 13px; color: #C9CED8">{{r.details}}</span></span>
+<span role="cell" style="color: #D1D5DB">{{r.dateText}}</span>
+<span role="cell"><span style="display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: {{r.b.bg}}; color: {{r.b.fg}}">{{r.b.text}}</span></span>
+<span role="cell" style="display: flex; gap: 6px">
+<select value="{{r.val}}" onChange="{{r.onSel}}" aria-label="{{r.selAria}}" style="min-height: 36px; flex: 1; min-width: 0; border-radius: 8px; background: #0F141E; color: #F3F4F6; border: 1px solid #6B7280; font-family: inherit; font-size: 13px; padding: 0 6px">
+<option value="New">New</option><option value="In progress">In progress</option><option value="Resolved">Resolved</option>
+</select>
+<button type="button" onClick="{{r.update}}" disabled="{{r.unchanged}}" aria-label="{{r.updAria}}" style="min-height: 36px; padding: 0 12px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 13px; font-weight: 600">Update</button>
+</span>
+<span role="cell"><button type="button" onClick="{{r.del}}" aria-label="{{r.delAria}}" style="min-height: 36px; padding: 0 10px; background: transparent; color: #FCA5A5; border: 1px solid #F87171; border-radius: 8px; font-size: 13px">Delete</button></span>
+</div>
+</sc-for>
+<sc-if value="{{acEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding: 32px 16px; text-align: center; color: #C9CED8; border-top: 1px solid rgba(255,255,255,0.1)">No complaints match your search or filter.</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<!-- SCR-21 MANAGE DUES -->
+<sc-if value="{{s.adues}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 28px; color: #F5B800">Dues management</h1><p style="margin: 2px 0 0; color: #C9CED8; font-size: 14px">Monitor monthly dues, record onsite payments and view receipts.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" onClick="{{exportDues}}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Export CSV</button>
+<button type="button" onClick="{{askGenerate}}" disabled="{{genDone}}" style="min-height: 44px; padding: 0 16px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">{{genLabel}}</button>
+</div>
+</div>
+<div role="group" aria-label="Billing month" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px">
+<span style="font-size: 14px; color: #C9CED8; margin-right: 4px">Billing month</span>
+<sc-for list="{{monthChips}}" as="m" hint-placeholder-count="2">
+<button type="button" onClick="{{m.pick}}" aria-pressed="{{m.sel}}" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); background: {{m.bg}}; color: {{m.fg}}; font-size: 14px; font-weight: 500">{{m.label}}</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px">
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #60A5FA; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Residents billed</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{ds.total}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #4ADE80; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Paid</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{ds.paid}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #FCD34D; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Unpaid</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{ds.unpaid}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #F87171; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Overdue</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{ds.overdue}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #4ADE80; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Collected</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{ds.collected}}</p></div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-top: 4px solid #FCD34D; border-radius: 14px; padding: 14px"><p style="margin: 0; font-size: 13px; color: #B8BFCC">Outstanding</p><p style="margin: 0; font-size: 24px; font-weight: 700">{{ds.outstanding}}</p></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 12px">
+<div role="group" aria-label="Filter by payment status" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{duesTabs}}" as="t" hint-placeholder-count="4">
+<button type="button" onClick="{{t.pick}}" aria-pressed="{{t.sel}}" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: {{t.bg}}; color: {{t.fg}}; font-size: 14px; font-weight: 500">{{t.label}} ({{t.count}})</button>
+</sc-for>
+</div>
+<div style="width: 280px; max-width: 100%">
+<label for="search_dues" style="display: block; font-size: 13px; color: #C9CED8; margin-bottom: 4px">Search name, block or reference</label>
+<input id="search_dues" type="search" value="{{f.search_dues}}" onChange="{{on.search_dues}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280">
+</div>
+</div>
+<div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; overflow-x: auto">
+<div role="table" aria-label="Dues for selected month" style="min-width: 1080px">
+<div role="row" style="display: grid; grid-template-columns: minmax(0, 1.4fr) 110px 100px 120px 110px 90px 120px minmax(0, 1.3fr) 190px; gap: 12px; padding: 12px 16px; background: rgba(255,255,255,0.06); font-size: 13px; font-weight: 600; color: #D1D5DB">
+<span role="columnheader">Resident</span><span role="columnheader">Block &amp; lot</span><span role="columnheader">Amount</span><span role="columnheader">Due date</span><span role="columnheader">Status</span><span role="columnheader">Method</span><span role="columnheader">Payment date</span><span role="columnheader">Reference no.</span><span role="columnheader">Manage dues</span>
+</div>
+<sc-for list="{{aDuesRows}}" as="d" hint-placeholder-count="4">
+<div role="row" style="display: grid; grid-template-columns: minmax(0, 1.4fr) 110px 100px 120px 110px 90px 120px minmax(0, 1.3fr) 190px; gap: 12px; padding: 12px 16px; align-items: center; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.1)">
+<span role="cell" style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 50%; background: #374151; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">{{d.initials}}</span>{{d.name}}</span>
+<span role="cell" style="color: #D1D5DB">{{d.blockLot}}</span>
+<span role="cell">{{d.amountText}}</span>
+<span role="cell" style="color: #D1D5DB">{{d.dueText}}</span>
+<span role="cell"><span style="display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: {{d.b.bg}}; color: {{d.b.fg}}">{{d.b.text}}</span></span>
+<span role="cell" style="color: #D1D5DB">{{d.methodText}}</span>
+<span role="cell" style="color: #D1D5DB">{{d.paidText}}</span>
+<span role="cell" style="color: #D1D5DB; font-size: 13px; overflow-wrap: anywhere">{{d.refText}}</span>
+<span role="cell">
+<sc-if value="{{d.isPaid}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{d.receipt}}" aria-label="{{d.rcptAria}}" style="min-height: 36px; padding: 0 12px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px; font-size: 13px">View receipt</button></sc-if>
+<sc-if value="{{d.canPay}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{d.record}}" aria-label="{{d.recAria}}" style="min-height: 36px; padding: 0 12px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-size: 13px; font-weight: 600">Record onsite payment</button></sc-if>
+</span>
+</div>
+</sc-for>
+<sc-if value="{{aDuesEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding: 32px 16px; text-align: center; color: #C9CED8; border-top: 1px solid rgba(255,255,255,0.1)">No dues records match your search or filter.</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+</main>
+</div>
+</sc-if>
+
+<!-- SCR-13 ONLINE PAYMENT (QR Ph via PayMongo) -->
+<sc-if value="{{s.pay}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; color: #1F2937; min-height: 100vh">
+<div style="max-width: 1100px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #E5E7EB">
+<button type="button" onClick="{{cancelPay}}" style="min-height: 44px; display: flex; align-items: center; gap: 8px; background: none; border: none; color: #1F2937; font-size: 15px; font-weight: 500">← Cancel and return to My Dues</button>
+<span style="font-size: 13px; color: #4B5563">Secure checkout · PayMongo (simulated)</span>
+</div>
+<main style="max-width: 1100px; margin: 0 auto; padding: 32px 24px 48px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<section aria-labelledby="pay-h" style="flex: 1 1 340px">
+<h1 id="pay-h" style="margin: 0; font-size: 20px">Monthly dues</h1>
+<p style="margin: 0; color: #4B5563; font-size: 14px">Dolce Vita Homeowners Association · {{pay.periodText}}</p>
+<p style="margin: 12px 0 4px; font-size: 36px; font-weight: 700; color: #15803D">{{pay.amount}}</p>
+<p style="margin: 0 0 20px; font-size: 13px; color: #4B5563">Billed to {{pay.name}} · {{pay.email}}</p>
+<dl style="margin: 0; border-top: 1px solid #E5E7EB; font-size: 14px">
+<div style="display: flex; justify-content: space-between; padding: 10px 0"><dt style="color: #4B5563">Subtotal</dt><dd style="margin: 0">{{pay.amount}}</dd></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0"><dt style="color: #4B5563">Fees</dt><dd style="margin: 0">Free</dd></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #E5E7EB; font-weight: 700"><dt>Total due</dt><dd style="margin: 0">{{pay.amount}}</dd></div>
+</dl>
+</section>
+<section aria-label="QR Ph payment" style="flex: 1 1 380px; border: 1px solid #E5E7EB; border-radius: 14px; padding: 20px; box-sizing: border-box">
+<sc-if value="{{payQr}}" hint-placeholder-val="{{ true }}">
+<div style="background: #F3F4F6; border-radius: 12px; padding: 20px; text-align: center">
+<p style="margin: 0 0 4px; font-weight: 600">Scan the QR Ph code to pay</p>
+<p style="margin: 0 0 12px; font-size: 13px; color: #4B5563">Works with any QR Ph–enabled bank or e-wallet app</p>
+<span style="display: inline-block; padding: 2px 10px; border-radius: 999px; background: #15803D; color: #FFFFFF; font-size: 12px; font-weight: 600; margin-bottom: 10px">Code expires in 30:00</span>
+<div role="img" aria-label="Sample QR Ph code for this payment (simulated)" style="width: 200px; height: 200px; margin: 0 auto; padding: 10px; background: #FFFFFF; display: grid; grid-template-columns: repeat(25, minmax(0, 1fr)); grid-auto-rows: 1fr">
+<sc-for list="{{qr}}" as="q" hint-placeholder-count="625"><span style="background: {{q.c}}"></span></sc-for>
+</div>
+</div>
+<div role="group" aria-label="Prototype controls" style="margin-top: 16px; border: 1px dashed #9CA3AF; border-radius: 10px; padding: 12px">
+<p style="margin: 0 0 8px; font-size: 12px; font-weight: 600; color: #4B5563; text-transform: uppercase; letter-spacing: 0.06em">Prototype: simulate the bank app result</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" onClick="{{simPaySuccess}}" style="flex: 1 1 160px; min-height: 44px; background: #15803D; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Payment succeeds</button>
+<button type="button" onClick="{{simPayFail}}" style="flex: 1 1 160px; min-height: 44px; background: #FFFFFF; color: #B91C1C; border: 1px solid #B91C1C; border-radius: 8px; font-weight: 600">Payment fails</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{payProc}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="text-align: center; padding: 48px 16px">
+<span aria-hidden="true" style="display: inline-block; width: 44px; height: 44px; border: 4px solid #15803D; border-right-color: transparent; border-radius: 50%; animation: dvspin 0.9s linear infinite"></span>
+<p style="margin: 16px 0 4px; font-weight: 600; font-size: 17px">Waiting for payment confirmation…</p>
+<p style="margin: 0; color: #4B5563; font-size: 14px">Status: Pending. Please don't close this page. This usually takes a few seconds.</p>
+</div>
+</sc-if>
+<sc-if value="{{payFail}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="padding: 24px 8px; text-align: center">
+<svg aria-hidden="true" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+<p style="margin: 10px 0 4px; font-weight: 700; font-size: 18px; color: #991B1B">Payment not completed</p>
+<p style="margin: 0 0 20px; color: #374151; font-size: 14px">The bank declined or the code expired. <strong>You were not charged</strong> and {{pay.periodText}} is still unpaid.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center">
+<button type="button" onClick="{{retryPay}}" style="min-height: 44px; padding: 0 20px; background: #15803D; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Try again</button>
+<button type="button" onClick="{{cancelPay}}" style="min-height: 44px; padding: 0 20px; background: #FFFFFF; color: #1F2937; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Back to My Dues</button>
+</div>
+</div>
+</sc-if>
+<p style="margin: 16px 0 0; font-size: 12px; color: #4B5563; text-align: center">By completing this payment you agree to the payment provider's privacy policy.</p>
+</section>
+</main>
+</div>
+</sc-if>
+
+<!-- SCR-14 DIGITAL RECEIPT -->
+<sc-if value="{{s.receipt}}" hint-placeholder-val="{{ false }}">
+<div style="background: #EEF1F4; color: #1F2937; min-height: 100vh; padding: 24px 16px 48px; box-sizing: border-box">
+<div style="max-width: 560px; margin: 0 auto">
+<p style="margin: 0 0 12px; text-align: center"><button type="button" onClick="{{receiptBack}}" style="min-height: 44px; background: none; border: none; color: #1D4ED8; text-decoration: underline; font-size: 14px">← {{receiptBackLabel}}</button></p>
+<sc-if value="{{rc.justPaid}}" hint-placeholder-val="{{ false }}"><div role="status" style="background: #DCFCE7; border: 1px solid #15803D; color: #14532D; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px">✓ <strong>Payment confirmed.</strong> A copy of this receipt was emailed to {{rc.emailMasked}}.</div></sc-if>
+<article aria-labelledby="rc-h" style="background: #FFFFFF; border-radius: 12px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08); padding: 32px">
+<header style="text-align: center; padding-bottom: 16px; border-bottom: 2px solid #2B4BA8">
+<h1 id="rc-h" style="margin: 0; font-size: 22px; color: #2B4BA8; letter-spacing: 0.02em">DOLCE VITA VILLAGE</h1>
+<p style="margin: 2px 0 0; font-size: 14px; color: #4B5563">Official payment receipt</p>
+</header>
+<dl style="margin: 20px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; font-size: 14px">
+<div><dt style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4B5563">Resident name</dt><dd style="margin: 0; font-weight: 600">{{rc.name}}</dd></div>
+<div><dt style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4B5563">Address</dt><dd style="margin: 0; font-weight: 600">{{rc.address}}</dd></div>
+<div><dt style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4B5563">Date paid</dt><dd style="margin: 0; font-weight: 600">{{rc.date}}</dd></div>
+<div><dt style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4B5563">Reference number</dt><dd style="margin: 0; font-weight: 600; overflow-wrap: anywhere">{{rc.ref}}</dd></div>
+</dl>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #4B5563; border-bottom: 1px solid #E5E7EB; padding-bottom: 6px"><span>Description</span><span>Amount</span></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB; font-size: 14px"><span>{{rc.desc}}</span><span>{{rc.amount}}</span></div>
+<p style="margin: 8px 0 0; font-size: 13px; color: #4B5563">Method: {{rc.method}}</p>
+<div style="text-align: right; margin-top: 20px"><p style="margin: 0; font-size: 13px; color: #4B5563">Total amount paid</p><p style="margin: 0; font-size: 28px; font-weight: 700; color: #2B4BA8">{{rc.amount}}</p></div>
+<p style="margin: 24px 0 0; padding-top: 16px; border-top: 1px dashed #D1D5DB; text-align: center; font-size: 12px; color: #4B5563">This is an electronically generated receipt. Thank you for your support to our community!</p>
+</article>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 18px">
+<button type="button" onClick="{{printReceipt}}" style="min-height: 44px; padding: 0 22px; background: #2B4BA8; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Print receipt</button>
+<button type="button" onClick="{{downloadReceipt}}" style="min-height: 44px; padding: 0 22px; background: #FFFFFF; color: #1F2937; border: 1px solid #9CA3AF; border-radius: 8px; font-weight: 500">Download PDF</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- MODALS -->
+<sc-if value="{{anyModal}}" hint-placeholder-val="{{ false }}">
+<div style="position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50">
+<div role="dialog" aria-modal="true" aria-labelledby="mdl-h" style="width: 100%; max-width: 460px; box-sizing: border-box; background: #1E2433; border: 1px solid #3A4357; border-radius: 16px; padding: 24px; color: #F3F4F6">
+
+<sc-if value="{{m.logout}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Log out?</h2>
+<p style="margin: 0 0 20px; color: #D1D5DB">You'll need your username and password to log in again.</p>
+<div style="display: flex; gap: 10px; justify-content: flex-end"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Stay logged in</button><button type="button" onClick="{{doLogout}}" style="min-height: 44px; padding: 0 18px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Log out</button></div>
+</sc-if>
+
+<sc-if value="{{m.approve}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Approve {{mod.name}}?</h2>
+<p style="margin: 0 0 20px; color: #D1D5DB">They'll be able to log in as a resident, and an approval email will be sent to {{mod.email}}. {{mod.ocrNote}}</p>
+<div style="display: flex; gap: 10px; justify-content: flex-end"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Cancel</button><button type="button" onClick="{{confirmApprove}}" style="min-height: 44px; padding: 0 18px; background: #15803D; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Approve resident</button></div>
+</sc-if>
+
+<sc-if value="{{m.reject}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Reject {{mod.name}}'s application?</h2>
+<p style="margin: 0 0 16px; color: #D1D5DB">The applicant will be emailed the reason so they can reapply.</p>
+<label for="rej_reason" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Reason <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<select id="rej_reason" value="{{f.rej_reason}}" onChange="{{on.rej_reason}}" aria-invalid="{{inv.rej_reason}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.rej_reason}}">
+<option value="">Choose a reason</option>
+<option value="Address on document does not match registration">Address does not match registration</option>
+<option value="Name on document does not match registration">Name does not match registration</option>
+<option value="Document is unreadable — please upload a clearer copy">Document is unreadable</option>
+<option value="Document is not an accepted proof of residency">Not an accepted proof of residency</option>
+</select>
+<sc-if value="{{err.rej_reason}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.rej_reason}}</p></sc-if>
+<label for="rej_note" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin: 14px 0 6px">Note to applicant (optional)</label>
+<textarea id="rej_note" rows="3" value="{{f.rej_note}}" onChange="{{on.rej_note}}" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid #6B7280; resize: vertical"></textarea>
+<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Cancel</button><button type="button" onClick="{{confirmReject}}" style="min-height: 44px; padding: 0 18px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Reject application</button></div>
+</sc-if>
+
+<sc-if value="{{m.delAnn}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Delete this announcement?</h2>
+<p style="margin: 0 0 20px; color: #D1D5DB">“{{mod.title}}” will be removed from residents' feed. This can't be undone.</p>
+<div style="display: flex; gap: 10px; justify-content: flex-end"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Keep it</button><button type="button" onClick="{{confirmDelAnn}}" style="min-height: 44px; padding: 0 18px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Delete announcement</button></div>
+</sc-if>
+
+<sc-if value="{{m.delComp}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Delete complaint {{mod.id}}?</h2>
+<p style="margin: 0 0 20px; color: #D1D5DB">“{{mod.subject}}” will be permanently removed for you and the resident. Consider marking it Resolved instead.</p>
+<div style="display: flex; gap: 10px; justify-content: flex-end"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Cancel</button><button type="button" onClick="{{confirmDelComp}}" style="min-height: 44px; padding: 0 18px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Delete complaint</button></div>
+</sc-if>
+
+<sc-if value="{{m.discard}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Discard this complaint?</h2>
+<p style="margin: 0 0 20px; color: #D1D5DB">What you've typed won't be saved.</p>
+<div style="display: flex; gap: 10px; justify-content: flex-end"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Keep editing</button><button type="button" onClick="{{confirmDiscard}}" style="min-height: 44px; padding: 0 18px; background: #B91C1C; color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600">Discard</button></div>
+</sc-if>
+
+<sc-if value="{{m.generate}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 8px; font-size: 20px">Generate November 2026 dues?</h2>
+<p style="margin: 0 0 20px; color: #D1D5DB">A ₱840.00 bill due November 30, 2026 will be created for each of the {{mod.count}} approved residents, and they'll see it on their View Dues page.</p>
+<div style="display: flex; gap: 10px; justify-content: flex-end"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Cancel</button><button type="button" onClick="{{confirmGenerate}}" style="min-height: 44px; padding: 0 18px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Generate dues</button></div>
+</sc-if>
+
+<sc-if value="{{m.onsite}}" hint-placeholder-val="{{ false }}">
+<h2 id="mdl-h" style="margin: 0 0 4px; font-size: 20px">Record onsite payment</h2>
+<p style="margin: 0 0 16px; color: #D1D5DB">{{mod.name}} · {{mod.period}} · <strong>{{mod.amount}}</strong></p>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div>
+<label for="on_or" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Official receipt (OR) number <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="on_or" type="text" value="{{f.on_or}}" onChange="{{on.on_or}}" aria-invalid="{{inv.on_or}}" aria-required="true" aria-describedby="on_or-help" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; border: 1px solid {{bc.on_or}}">
+<p id="on_or-help" style="margin: 6px 0 0; font-size: 13px; color: #B8BFCC">Format OR-YYYY-NNNN, from the paper receipt.</p>
+<sc-if value="{{err.on_or}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.on_or}}</p></sc-if>
+</div>
+<div>
+<label for="on_date" style="display: block; font-size: 14px; font-weight: 500; color: #E5E7EB; margin-bottom: 6px">Payment date <span aria-hidden="true" style="color: #FCD34D">*</span></label>
+<input id="on_date" type="date" max="2026-10-23" value="{{f.on_date}}" onChange="{{on.on_date}}" aria-invalid="{{inv.on_date}}" aria-required="true" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 10px 12px; border-radius: 8px; background: #0F141E; color: #F3F4F6; font-family: inherit; font-size: 15px; color-scheme: dark; border: 1px solid {{bc.on_date}}">
+<sc-if value="{{err.on_date}}" hint-placeholder-val="{{ false }}"><p style="display: flex; gap: 6px; align-items: flex-start; color: #FCA5A5; font-size: 13px; margin: 6px 0 0"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>{{err.on_date}}</p></sc-if>
+</div>
+</div>
+<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px"><button type="button" onClick="{{closeModal}}" style="min-height: 44px; padding: 0 18px; background: transparent; color: #F3F4F6; border: 1px solid #9CA3AF; border-radius: 8px">Cancel</button><button type="button" onClick="{{confirmOnsite}}" style="min-height: 44px; padding: 0 18px; background: #F5B800; color: #1A1A1A; border: none; border-radius: 8px; font-weight: 600">Record payment</button></div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+
+<!-- TOAST -->
+<div role="status" aria-live="polite" style="position: fixed; right: 16px; bottom: 16px; z-index: 60; max-width: 380px">
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 10px; align-items: flex-start; background: {{toast.bg}}; border: 1px solid {{toast.border}}; color: #F9FAFB; border-radius: 12px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); font-size: 14px">
+<span aria-hidden="true" style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: {{toast.border}}; color: #0B0E14; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">{{toast.icon}}</span>
+<span><strong>{{toast.title}}</strong><br>{{toast.text}}</span>
+<button type="button" onClick="{{closeToast}}" aria-label="Dismiss message" style="flex: none; margin-left: auto; width: 32px; height: 32px; background: none; border: none; color: #F9FAFB; font-size: 18px">×</button>
+</div>
+</sc-if>
+</div>
+
+</div>
+</template>
+<script src="react.js"></script>
+<script>
+(function(){
+const h=React.createElement;
+const ATTR={class:'className',for:'htmlFor',tabindex:'tabIndex',maxlength:'maxLength',readonly:'readOnly',autocomplete:'autoComplete',inputmode:'inputMode',novalidate:'noValidate',colspan:'colSpan',rowspan:'rowSpan'};
+const camel=s=>s.replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
+function look(p,sc){p=p.trim();if(p==='true')return true;if(p==='false')return false;if(/^-?\d+(\.\d+)?$/.test(p))return Number(p);let v=sc;for(const k of p.split('.')){if(v==null)return undefined;v=v[k];}return v;}
+function interp(s,sc){const one=s.match(/^\s*\{\{([^}]+)\}\}\s*$/);if(one)return look(one[1],sc);return s.replace(/\{\{([^}]+)\}\}/g,(_,p)=>{const v=look(p,sc);return v==null?'':String(v);});}
+function styleObj(s){const o={};s.split(';').forEach(d=>{const i=d.indexOf(':');if(i<0)return;const k=d.slice(0,i).trim(),v=d.slice(i+1).trim();if(!k)return;o[k.startsWith('--')?k:camel(k)]=v;});return o;}
+function kids(n,sc){const a=[];n.childNodes.forEach((c,i)=>{const r=rend(c,sc,i);if(r!==null&&r!==undefined)a.push(r);});return a;}
+function rend(n,sc,key){
+ if(n.nodeType===3){const t=n.nodeValue;return t.indexOf('{{')>=0?interp(t,sc):t;}
+ if(n.nodeType!==1)return null;
+ const tag=n.tagName.toLowerCase();
+ if(tag==='sc-if'){return interp(n.getAttribute('value')||'',sc)?h(React.Fragment,{key},...kids(n,sc)):null;}
+ if(tag==='sc-for'){const list=interp(n.getAttribute('list')||'',sc)||[];const as=n.getAttribute('as')||'item';return h(React.Fragment,{key},...list.map((it,i)=>h(React.Fragment,{key:i},...kids(n,Object.assign({},sc,{[as]:it,$index:i})))));}
+ const isSvg=n.namespaceURI==='http://www.w3.org/2000/svg';
+ const props={key};
+ for(const a of Array.from(n.attributes)){
+  let name=a.name;if(name.startsWith('hint-'))continue;
+  let v=a.value.indexOf('{{')>=0?interp(a.value,sc):a.value;
+  if(/^on[a-z]+$/.test(name)){name='on'+name[2].toUpperCase()+name.slice(3);if(typeof v!=='function')continue;props[name]=v;continue;}
+  if(name==='style'){props.style=styleObj(String(v));continue;}
+  if(v===undefined||v===null)continue;
+  if(ATTR[name])name=ATTR[name];else if(name.indexOf('-')>0&&!/^(aria|data)-/.test(name))name=camel(name);
+  if(name==='noValidate')v=true;
+  props[name]=v;
+ }
+ const tagName=isSvg?n.tagName:tag;
+ const ch=kids(n,sc);
+ if(['input','img','br','hr','meta','link'].indexOf(tag)>=0)return h(tagName,props);
+ if(tag==='textarea')return h('textarea',props);
+ return h(tagName,props,...ch);
+}
+const tplEl=document.getElementById('dc-template');
+const root=document.createElement('div');root.innerHTML=tplEl.innerHTML;
+class DCLogic extends React.Component{render(){const vals=this.renderVals();return h(React.Fragment,null,...kids(root,vals));}}
+window.DCLogic=DCLogic;window.__dcRender=rend;
+})();
+</script>
+<script>
+
+const TODAY = '2026-10-23';
+const MS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const ML = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fd(iso) { if (!iso) return '—'; const p = iso.split('-').map(Number); return MS[p[1]-1] + ' ' + p[2] + ', ' + p[0]; }
+function fp(per) { const p = per.split('-').map(Number); return ML[p[1]-1] + ' ' + p[0]; }
+function peso(n) { return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function lastDay(per) { const p = per.split('-').map(Number); const d = new Date(p[0], p[1], 0).getDate(); return per + '-' + String(d).padStart(2, '0'); }
+function rnd(n) { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; let s = ''; for (let i = 0; i < n; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+function ini(a, b) { return ((a || ' ')[0] + (b || ' ')[0]).toUpperCase().trim(); }
+function mask(email) { const at = email.indexOf('@'); return email[0] + '•••' + email.slice(at); }
+function dStatus(d) { return d.paidOn ? 'Paid' : (d.due < TODAY ? 'Overdue' : 'Unpaid'); }
+const BADGE = {
+  Paid: ['✓ Paid', '#14532D', '#BBF7D0'], Approved: ['✓ Approved', '#14532D', '#BBF7D0'], Resolved: ['✓ Resolved', '#14532D', '#BBF7D0'],
+  Unpaid: ['○ Unpaid', '#713F12', '#FDE68A'], Pending: ['◷ Pending review', '#713F12', '#FDE68A'], 'In progress': ['◷ In progress', '#713F12', '#FDE68A'],
+  Overdue: ['! Overdue', '#7F1D1D', '#FECACA'], Rejected: ['✕ Rejected', '#7F1D1D', '#FECACA'], New: ['● New', '#1E3A8A', '#BFDBFE']
+};
+function badge(s) { const m = BADGE[s] || [s, '#374151', '#E5E7EB']; return { text: m[0], bg: m[1], fg: m[2] }; }
+const CAT = { Sanitation: '#14532D', Utilities: '#1E3A8A', Dues: '#713F12', Events: '#581C87', General: '#334155', Security: '#7F1D1D' };
+const SCREENS = {
+  landing: { id: 'SCR-01', name: 'Landing Page', area: 'public' },
+  about: { id: 'SCR-02', name: 'About Us Page', area: 'public' },
+  community: { id: 'SCR-03', name: 'Community Page', area: 'public' },
+  register: { id: 'SCR-04', name: 'Resident Registration', area: 'public' },
+  login: { id: 'SCR-05', name: 'Login Page', area: 'public' },
+  forgot: { id: 'SCR-06', name: 'Forgot Password Page', area: 'public' },
+  rhome: { id: 'SCR-07', name: 'Resident Landing Page', area: 'resident' },
+  ann: { id: 'SCR-08', name: 'View Announcements', area: 'resident' },
+  status: { id: 'SCR-09', name: 'Registration Status', area: 'public' },
+  complain: { id: 'SCR-10', name: 'Post Complaint', area: 'resident' },
+  mycomp: { id: 'SCR-11', name: 'My Complaints Submitted', area: 'resident' },
+  dues: { id: 'SCR-12', name: 'View Dues', area: 'resident' },
+  pay: { id: 'SCR-13', name: 'Online Payment (QR Ph)', area: 'resident' },
+  receipt: { id: 'SCR-14', name: 'Digital Receipt', area: 'auth' },
+  profile: { id: 'SCR-15', name: 'Profile Details', area: 'auth' },
+  ahome: { id: 'SCR-16', name: 'Admin Dashboard', area: 'admin' },
+  ares: { id: 'SCR-17', name: 'Manage Residents Accounts', area: 'admin' },
+  averify: { id: 'SCR-18', name: 'Verification Review', area: 'admin' },
+  aann: { id: 'SCR-19', name: 'Post Announcements', area: 'admin' },
+  acomp: { id: 'SCR-20', name: 'View Complaints', area: 'admin' },
+  adues: { id: 'SCR-21', name: 'Manage Dues', area: 'admin' },
+  denied: { id: 'SCR-22', name: 'Access Restricted', area: 'public' }
+};
+const KEYS = ['login_u','login_p','fg_email','reg_first','reg_middle','reg_last','reg_birth','reg_email','reg_phone','reg_block','reg_lot','reg_user','reg_pw','reg_pw2','reg_file','reg_privacy','fb_name','fb_type','fb_msg','cp_subject','cp_cat','cp_details','cp_photo','an_title','an_cat','an_body','an_image','pr_phone','pr_email','pw_cur','pw_new','pw_conf','search_ann','search_res','search_comp','search_dues','rej_reason','rej_note','on_or','on_date','adues_month','mycomp_tab','res_tab','comp_tab','dues_tab'];
+const F0 = {}; KEYS.forEach(k => { F0[k] = ''; });
+Object.assign(F0, { reg_file: null, cp_photo: null, an_image: null, reg_privacy: false, fb_type: 'The portal', an_cat: 'General', adues_month: '2026-10', mycomp_tab: 'All', res_tab: 'All', comp_tab: 'All', dues_tab: 'All' });
+const NAME_RE = /^[A-Za-zÀ-ÿÑñ][A-Za-zÀ-ÿÑñ .'-]{1,49}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PW_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+
+function mkRes(id, first, middle, last, block, lot, phone, status, conf, submitted, extra) {
+  const username = (first + '.' + last).toLowerCase().replace(/\s+/g, '');
+  return Object.assign({ id, first, middle, last, block, lot, phone, status, conf, submitted, username, password: 'resident123', email: username + '@example.com', birth: '1985-06-1' + (id % 9), doc: 'Barangay certificate of residency', fileName: 'proof_' + last.toLowerCase() + '.jpg', ocrFail: false, reason: '',
+    ocr: { name: (first + ' ' + (middle.trim() ? middle.trim()[0] + '. ' : '') + last).toUpperCase(), address: 'BLK ' + block + ' LOT ' + lot + ', DOLCE VITA, BRGY. ZAPOTE', nameOk: true, addrOk: true, issuer: 'Barangay Zapote, Biñan City', issued: '2026-0' + (3 + (id % 6)) + '-12' } }, extra || {});
+}
+function seed() {
+  const residents = [
+    mkRes(1, 'Maria', 'Lopez', 'Santos', '5', '23', '0917 555 0142', 'Approved', 94, '2026-04-02'),
+    mkRes(2, 'Ramon', 'Diaz', 'Villanueva', '12', '4', '0918 555 0167', 'Approved', 89, '2026-04-05'),
+    mkRes(3, 'Joel', 'Ramos', 'Bautista', '8', '15', '0927 555 0133', 'Approved', 91, '2026-04-11'),
+    mkRes(4, 'Ana', 'Marie', 'Cruz', '3', '9', '0939 555 0188', 'Approved', 87, '2026-05-20'),
+    mkRes(5, 'Liza', 'Perez', 'Navarro', '14', '2', '0915 555 0121', 'Pending', 92, '2026-10-21'),
+    mkRes(6, 'Paolo', 'Garcia', 'Mendoza', '21', '7', '0916 555 0199', 'Pending', null, '2026-10-22', { ocrFail: true, fileName: 'IMG_20261022_blurry.jpg' }),
+    mkRes(7, 'Grace', 'Tan', 'Lim', '30', '11', '0919 555 0155', 'Rejected', 41, '2026-10-02', { reason: 'Address on document does not match registration' })
+  ];
+  residents[6].ocr.address = 'BLK 3 LOT 11, VERDANA HOMES, BRGY. SAN ANTONIO'; residents[6].ocr.addrOk = false;
+  const d = (rid, per, paidOn, method, ref) => ({ id: 'D-' + rid + '-' + per, residentId: rid, period: per, amount: 840, due: lastDay(per), paidOn: paidOn || '', method: method || '', ref: ref || '' });
+  const dues = [
+    d(1, '2026-05', '2026-05-10', 'Onsite', 'OR-2026-0187'), d(1, '2026-06', '2026-06-12', 'Online', 'pay_8fK2mQwT4xLr9VbN'),
+    d(1, '2026-07', '2026-07-09', 'Online', 'pay_3hJ7pXcR2nWq5ZsA'), d(1, '2026-08', '2026-08-14', 'Onsite', 'OR-2026-0331'),
+    d(1, '2026-09'), d(1, '2026-10'),
+    d(2, '2026-09', '2026-09-20', 'Online', 'pay_Qm4tY8kV1sNc7RbE'), d(2, '2026-10', '2026-10-08', 'Online', 'pay_Lx2Wd9hP6jTe3GuK'),
+    d(3, '2026-09', '2026-09-28', 'Onsite', 'OR-2026-0402'), d(3, '2026-10', '2026-10-15', 'Onsite', 'OR-2026-0447'),
+    d(4, '2026-09', '2026-09-11', 'Online', 'pay_Vn5cB2rZ8yHa4MqS'), d(4, '2026-10')
+  ];
+  const complaints = [
+    { id: 'C-0003', residentId: 1, subject: 'Loud karaoke past midnight', cat: 'Noise', details: 'Neighbors on Block 12 had karaoke running until 1 AM on Saturday, October 3.', date: '2026-10-04', status: 'Resolved', updated: '2026-10-06', note: 'We spoke with the homeowner and reminded them of quiet hours (10 PM–6 AM).', photo: 'None attached' },
+    { id: 'C-0005', residentId: 1, subject: 'Streetlight out near Block 5', cat: 'Facilities', details: 'The streetlight at the corner of Block 5 and Block 6 has been off for a week, and the road is very dark at night.', date: '2026-10-18', status: 'In progress', updated: '2026-10-20', note: 'An electrician is scheduled to replace the lamp on October 26.', photo: 'streetlight_blk5.jpg' },
+    { id: 'C-0006', residentId: 2, subject: 'Uncollected garbage at Block 12', cat: 'Sanitation', details: 'Garbage bags along Block 12 were not collected on Tuesday and are starting to attract stray animals.', date: '2026-10-21', status: 'New', updated: '', note: '', photo: 'None attached' }
+  ];
+  const announcements = [
+    { id: 1, title: 'Garbage collection schedule change', cat: 'Sanitation', body: 'Starting November 2, garbage will be collected every Monday and Thursday at 7:00 AM. Please put bags out the night before.', date: '2026-10-20', by: 'Admin Carlo Dizon' },
+    { id: 2, title: 'Water service interruption on October 28', cat: 'Utilities', body: 'The water provider will do scheduled maintenance from 9:00 AM to 3:00 PM. Please store enough water ahead of time.', date: '2026-10-19', by: 'Admin Carlo Dizon' },
+    { id: 3, title: 'October dues reminder', cat: 'Dues', body: 'October dues of ₱840.00 are due on October 31. Pay online with QR Ph in the portal or at the association office.', date: '2026-10-15', by: 'Admin Carlo Dizon' },
+    { id: 4, title: 'General assembly on November 7', cat: 'Events', body: 'All homeowners are invited to the general assembly on Saturday, November 7, 2026 at 4:00 PM at the clubhouse.', date: '2026-10-12', by: 'Admin Carlo Dizon' }
+  ];
+  return { residents, dues, complaints, announcements, admin: { first: 'Carlo', last: 'Dizon', username: 'admin', password: 'admin123', email: 'admin.dolcevita@example.com', phone: '0918 555 0110' } };
+}
+function makeQr() {
+  const N = 25; const cells = []; let x = 7;
+  const finder = (r, c) => { const z = [[0, 0], [0, N - 7], [N - 7, 0]]; for (const [a, b] of z) { if (r >= a && r < a + 7 && c >= b && c < b + 7) { const rr = r - a, cc = c - b; return (rr === 0 || rr === 6 || cc === 0 || cc === 6 || (rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4)) ? 1 : 0; } } return -1; };
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) { const fv = finder(r, c); let on; if (fv >= 0) on = fv === 1; else { x = (x * 1103515245 + 12345) % 2147483648; on = (x >> 16) % 2 === 0; } cells.push({ c: on ? '#111827' : '#FFFFFF' }); }
+  return cells;
+}
+
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = this.fresh();
+    this.qr = makeQr();
+    this.on = {};
+    KEYS.forEach(k => {
+      this.on[k] = (e) => {
+        const t = e.target; let v;
+        if (t.type === 'checkbox') v = t.checked;
+        else if (t.type === 'file') v = (t.files && t.files[0]) ? { name: t.files[0].name, size: t.files[0].size } : null;
+        else v = t.value;
+        this.setState(s => ({ f: Object.assign({}, s.f, { [k]: v }), err: Object.assign({}, s.err, { [k]: null }), regSummary: k.indexOf('reg_') === 0 ? s.regSummary : s.regSummary }));
+      };
+    });
+  }
+  fresh() {
+    return Object.assign({ screen: 'landing', user: null, f: Object.assign({}, F0), err: {}, regSummary: '', formErr: null, notice: '', busy: '', toast: null, modal: null,
+      lastAppId: 5, selRes: 5, selComp: null, highlightComp: null, payDueId: 'D-1-2026-09', payStage: 'qr', receiptId: 'D-1-2026-08', justPaid: false, fgSent: false, showPw: false,
+      anOpen: false, anEdit: null, compEdits: {}, nextComp: 7, nextAnn: 5, nextRes: 8, nextOR: 458 }, seed());
+  }
+  componentWillUnmount() { clearTimeout(this._tt); clearTimeout(this._bt); }
+  setF(obj) { this.setState(s => ({ f: Object.assign({}, s.f, obj) })); }
+  toastMsg(kind, title, text) { clearTimeout(this._tt); this.setState({ toast: { kind, title, text } }); this._tt = setTimeout(() => this.setState({ toast: null }), 5000); }
+  later(ms, fn) { clearTimeout(this._bt); this._bt = setTimeout(fn, ms); }
+  top() { try { window.scrollTo(0, 0); } catch (e) {} }
+  go(sc, extra) {
+    extra = extra || {}; const u = this.state.user; const meta = SCREENS[sc]; if (!meta) return;
+    if (meta.area !== 'public' && !u) { sc = 'login'; extra = Object.assign({}, extra, { notice: 'Please log in to continue.' }); }
+    else if (meta.area === 'admin' && u.role !== 'admin') sc = 'denied';
+    else if (meta.area === 'resident' && u.role !== 'resident') sc = 'denied';
+    const fx = {};
+    if (sc === 'profile' && u) { const p = u.role === 'admin' ? this.state.admin : this.state.residents.find(r => r.id === u.id); fx.pr_phone = p.phone.replace(/\s/g, ''); fx.pr_email = p.email; fx.pw_cur = ''; fx.pw_new = ''; fx.pw_conf = ''; }
+    if (sc === 'pay') extra = Object.assign({ payStage: 'qr' }, extra);
+    this.setState(s => Object.assign({ screen: sc, err: {}, formErr: null, notice: '', regSummary: '', modal: null, busy: '', justPaid: false, f: Object.assign({}, s.f, fx) }, extra));
+    this.top();
+  }
+  loginAs(role) {
+    if (role === 'resident') this.setState({ user: { role: 'resident', id: 1 } }, () => this.go('rhome'));
+    else if (role === 'admin') this.setState({ user: { role: 'admin' } }, () => this.go('ahome'));
+    else this.setState({ user: null }, () => this.go('landing'));
+  }
+  openModal(m) {
+    const fx = {};
+    if (m.type === 'reject') { fx.rej_reason = ''; fx.rej_note = ''; }
+    if (m.type === 'onsite') { fx.on_or = 'OR-2026-0' + this.state.nextOR; fx.on_date = TODAY; }
+    this.setState(s => ({ modal: m, err: {}, f: Object.assign({}, s.f, fx) }));
+  }
+
+  // ---------- submissions ----------
+  submitLogin = (e) => {
+    e.preventDefault(); const f = this.state.f; const err = {};
+    if (!f.login_u.trim()) err.login_u = 'Enter your username or email.';
+    if (!f.login_p) err.login_p = 'Enter your password.';
+    if (Object.keys(err).length) { this.setState({ err, formErr: null }); return; }
+    this.setState({ busy: 'login', formErr: null, notice: '' });
+    this.later(800, () => {
+      const st = this.state; const un = st.f.login_u.trim().toLowerCase(); const pw = st.f.login_p;
+      if (un === st.admin.username && pw === st.admin.password) { this.setState(s => ({ user: { role: 'admin' }, busy: '', f: Object.assign({}, s.f, { login_u: '', login_p: '' }) }), () => { this.go('ahome'); this.toastMsg('success', 'Logged in', 'Welcome back, ' + st.admin.first + '.'); }); return; }
+      const r = st.residents.find(x => x.username === un || x.email.toLowerCase() === un);
+      const fail = (fe) => this.setState(s => ({ busy: '', formErr: fe, f: Object.assign({}, s.f, { login_p: '' }) }));
+      if (!r || r.password !== pw) { fail({ kind: 'error', title: 'Incorrect username or password.', text: 'Check your details and try again. Passwords are case-sensitive.' }); return; }
+      if (r.status === 'Pending') { fail({ kind: 'warn', title: 'Your account is awaiting approval.', text: 'An administrator is still reviewing your proof of residency. You\'ll receive an email once a decision is made.', id: r.id }); return; }
+      if (r.status === 'Rejected') { fail({ kind: 'error', title: 'Your application was not approved.', text: 'Reason: ' + r.reason + '. You can register again with an updated document.', id: r.id }); return; }
+      this.setState(s => ({ user: { role: 'resident', id: r.id }, busy: '', f: Object.assign({}, s.f, { login_u: '', login_p: '' }) }), () => { this.go('rhome'); this.toastMsg('success', 'Logged in', 'Welcome back, ' + r.first + '.'); });
+    });
+  };
+  submitForgot = (e) => {
+    e.preventDefault(); const v = this.state.f.fg_email.trim();
+    if (!v) { this.setState({ err: { fg_email: 'Enter your email address.' } }); return; }
+    if (!EMAIL_RE.test(v)) { this.setState({ err: { fg_email: 'Enter a valid email address, like name@example.com.' } }); return; }
+    this.setState({ busy: 'fg' }); this.later(700, () => this.setState({ busy: '', fgSent: true }));
+  };
+  submitFeedback = (e) => {
+    e.preventDefault(); const m = this.state.f.fb_msg.trim();
+    if (m.length < 10) { this.setState({ err: { fb_msg: m ? 'Write at least 10 characters so we understand your feedback.' : 'Enter your feedback message.' } }); return; }
+    if (m.length > 500) { this.setState({ err: { fb_msg: 'Keep your message to 500 characters or fewer.' } }); return; }
+    this.setF({ fb_msg: '', fb_name: '' }); this.toastMsg('success', 'Thank you!', 'Your feedback was sent to the association.');
+  };
+  submitRegister = (e) => {
+    e.preventDefault(); const st = this.state, f = st.f; const err = {}; const t = (k) => String(f[k] || '').trim();
+    if (!t('reg_first')) err.reg_first = 'Enter your first name.'; else if (!NAME_RE.test(t('reg_first'))) err.reg_first = 'Use letters only, 2–50 characters.';
+    if (t('reg_middle') && !NAME_RE.test(t('reg_middle'))) err.reg_middle = 'Use letters only, or leave this blank.';
+    if (!t('reg_last')) err.reg_last = 'Enter your last name.'; else if (!NAME_RE.test(t('reg_last'))) err.reg_last = 'Use letters only, 2–50 characters.';
+    if (!f.reg_birth) err.reg_birth = 'Enter your birthdate.'; else if (f.reg_birth > '2008-10-23') err.reg_birth = 'Applicants must be at least 18 years old.';
+    const em = t('reg_email').toLowerCase();
+    if (!em) err.reg_email = 'Enter your email address.'; else if (!EMAIL_RE.test(em)) err.reg_email = 'Enter a valid email address, like name@example.com.'; else if (st.residents.some(r => r.email.toLowerCase() === em)) err.reg_email = 'This email is already registered. Log in, or use a different email.';
+    const ph = t('reg_phone').replace(/[\s-]/g, '');
+    if (!ph) err.reg_phone = 'Enter your mobile number.'; else if (!/^09\d{9}$/.test(ph)) err.reg_phone = 'Enter an 11-digit mobile number that starts with 09.';
+    const b = Number(t('reg_block')), l = Number(t('reg_lot'));
+    if (!t('reg_block')) err.reg_block = 'Enter your block number.'; else if (!Number.isInteger(b) || b < 1 || b > 50) err.reg_block = 'Block must be a whole number from 1 to 50.';
+    if (!t('reg_lot')) err.reg_lot = 'Enter your lot number.'; else if (!Number.isInteger(l) || l < 1 || l > 60) err.reg_lot = 'Lot must be a whole number from 1 to 60.';
+    const un = t('reg_user').toLowerCase();
+    if (!un) err.reg_user = 'Choose a username.'; else if (!/^[a-z0-9._]{6,20}$/.test(un)) err.reg_user = 'Use 6–20 letters, numbers, dots or underscores.'; else if (un === 'admin' || st.residents.some(r => r.username === un)) err.reg_user = 'That username is taken. Try another.';
+    if (!f.reg_pw) err.reg_pw = 'Create a password.'; else if (!PW_RE.test(f.reg_pw)) err.reg_pw = 'Use at least 8 characters, including a letter and a number.';
+    if (!f.reg_pw2) err.reg_pw2 = 'Re-enter your password.'; else if (f.reg_pw2 !== f.reg_pw) err.reg_pw2 = 'Passwords don\'t match. Re-enter the same password.';
+    if (!f.reg_file) err.reg_file = 'Upload your proof of residency (JPG, PNG or PDF, up to 5 MB).';
+    else if (!/\.(jpe?g|png|pdf)$/i.test(f.reg_file.name)) err.reg_file = 'This file type isn\'t accepted. Upload a JPG, PNG or PDF.';
+    else if (f.reg_file.size > 5 * 1024 * 1024) err.reg_file = 'This file is larger than 5 MB. Upload a smaller copy.';
+    if (!f.reg_privacy) err.reg_privacy = 'Accept the privacy notice to continue.';
+    const n = Object.keys(err).length;
+    if (n) { this.setState({ err, regSummary: n === 1 ? '1 field needs attention.' : n + ' fields need attention.' }); this.top(); return; }
+    this.setState({ busy: 'reg', regSummary: '' });
+    this.later(1200, () => {
+      const s = this.state; const id = s.nextRes; const ff = s.f;
+      const r = mkRes(id, t('reg_first'), t('reg_middle') || ' ', t('reg_last'), String(b), String(l), ph.replace(/^(\d{4})(\d{3})(\d{4})$/, '$1 $2 $3'), 'Pending', 90, TODAY, { username: un, email: em, password: ff.reg_pw, birth: ff.reg_birth, fileName: ff.reg_file.name, doc: 'Proof of residency' });
+      const cleared = {}; KEYS.filter(k => k.indexOf('reg_') === 0).forEach(k => { cleared[k] = F0[k]; });
+      this.setState({ residents: s.residents.concat([r]), nextRes: id + 1, busy: '', lastAppId: id, f: Object.assign({}, s.f, cleared) }, () => { this.go('status'); this.toastMsg('success', 'Application submitted', 'We\'ll email ' + em + ' once an administrator reviews it.'); });
+    });
+  };
+  submitComplaint = (e) => {
+    e.preventDefault(); const f = this.state.f; const err = {}; const sj = f.cp_subject.trim(), dt = f.cp_details.trim();
+    if (!sj) err.cp_subject = 'Enter a subject.'; else if (sj.length < 5) err.cp_subject = 'Make the subject at least 5 characters.';
+    if (!f.cp_cat) err.cp_cat = 'Choose a category.';
+    if (!dt) err.cp_details = 'Describe your concern.'; else if (dt.length < 20) err.cp_details = 'Add more detail — at least 20 characters (what, where, when).';
+    if (f.cp_photo && !/\.(jpe?g|png)$/i.test(f.cp_photo.name)) err.cp_photo = 'Attach a JPG or PNG image.'; else if (f.cp_photo && f.cp_photo.size > 5 * 1024 * 1024) err.cp_photo = 'This photo is larger than 5 MB. Attach a smaller one.';
+    if (Object.keys(err).length) { this.setState({ err }); return; }
+    this.setState({ busy: 'comp' });
+    this.later(900, () => {
+      const s = this.state; const id = 'C-' + String(s.nextComp).padStart(4, '0');
+      const c = { id, residentId: s.user.id, subject: sj, cat: f.cp_cat, details: dt, date: TODAY, status: 'New', updated: '', note: '', photo: f.cp_photo ? f.cp_photo.name : 'None attached' };
+      this.setState(st => ({ complaints: [c].concat(st.complaints), nextComp: st.nextComp + 1, busy: '', f: Object.assign({}, st.f, { cp_subject: '', cp_cat: '', cp_details: '', cp_photo: null, mycomp_tab: 'All' }) }), () => {
+        this.go('mycomp', { highlightComp: id, selComp: id }); this.toastMsg('success', 'Complaint ' + id + ' submitted', 'You\'ll see status updates here as the association works on it.');
+      });
+    });
+  };
+  saveProfile = (e) => {
+    e.preventDefault(); const f = this.state.f; const err = {}; const ph = f.pr_phone.replace(/[\s-]/g, ''); const em = f.pr_email.trim();
+    if (!/^09\d{9}$/.test(ph)) err.pr_phone = 'Enter an 11-digit mobile number that starts with 09.';
+    if (!EMAIL_RE.test(em)) err.pr_email = 'Enter a valid email address, like name@example.com.';
+    if (Object.keys(err).length) { this.setState({ err }); return; }
+    const phone = ph.replace(/^(\d{4})(\d{3})(\d{4})$/, '$1 $2 $3'); const u = this.state.user;
+    if (u.role === 'admin') this.setState(s => ({ admin: Object.assign({}, s.admin, { phone, email: em }) }));
+    else this.setState(s => ({ residents: s.residents.map(r => r.id === u.id ? Object.assign({}, r, { phone, email: em }) : r) }));
+    this.toastMsg('success', 'Profile saved', 'Your contact details were updated.');
+  };
+  changePassword = (e) => {
+    e.preventDefault(); const st = this.state, f = st.f, u = st.user; const err = {};
+    const acct = u.role === 'admin' ? st.admin : st.residents.find(r => r.id === u.id);
+    if (!f.pw_cur) err.pw_cur = 'Enter your current password.'; else if (f.pw_cur !== acct.password) err.pw_cur = 'Current password is incorrect.';
+    if (!f.pw_new) err.pw_new = 'Enter a new password.'; else if (!PW_RE.test(f.pw_new)) err.pw_new = 'Use at least 8 characters, including a letter and a number.'; else if (f.pw_new === f.pw_cur) err.pw_new = 'Choose a password different from your current one.';
+    if (!f.pw_conf) err.pw_conf = 'Re-enter the new password.'; else if (f.pw_conf !== f.pw_new) err.pw_conf = 'Passwords don\'t match.';
+    if (Object.keys(err).length) { this.setState({ err }); return; }
+    if (u.role === 'admin') this.setState(s => ({ admin: Object.assign({}, s.admin, { password: f.pw_new }) }));
+    else this.setState(s => ({ residents: s.residents.map(r => r.id === u.id ? Object.assign({}, r, { password: f.pw_new }) : r) }));
+    this.setF({ pw_cur: '', pw_new: '', pw_conf: '' }); this.toastMsg('success', 'Password updated', 'Use your new password next time you log in.');
+  };
+  publishAnn = (e) => {
+    e.preventDefault(); const f = this.state.f; const err = {}; const ti = f.an_title.trim(), bo = f.an_body.trim();
+    if (!ti) err.an_title = 'Enter a title.'; else if (ti.length < 5) err.an_title = 'Make the title at least 5 characters.';
+    if (!bo) err.an_body = 'Enter the announcement message.'; else if (bo.length < 10) err.an_body = 'Write at least 10 characters.';
+    if (Object.keys(err).length) { this.setState({ err }); return; }
+    const ed = this.state.anEdit;
+    if (ed) this.setState(s => ({ announcements: s.announcements.map(a => a.id === ed ? Object.assign({}, a, { title: ti, body: bo, cat: f.an_cat }) : a) }));
+    else this.setState(s => ({ announcements: [{ id: s.nextAnn, title: ti, cat: f.an_cat, body: bo, date: TODAY, by: 'Admin ' + s.admin.first + ' ' + s.admin.last }].concat(s.announcements), nextAnn: s.nextAnn + 1 }));
+    this.setState(s => ({ anOpen: false, anEdit: null, f: Object.assign({}, s.f, { an_title: '', an_body: '', an_cat: 'General', an_image: null }) }));
+    this.toastMsg('success', ed ? 'Announcement updated' : 'Announcement published', ed ? 'Residents now see the updated version.' : 'Residents can now see it on View Announcements.');
+  };
+  startPay(id) { this.go('pay', { payDueId: id, payStage: 'qr' }); }
+  finishPay(ok) {
+    this.setState({ payStage: 'proc' });
+    this.later(1600, () => {
+      if (!ok) { this.setState({ payStage: 'fail' }); return; }
+      const ref = 'pay_' + rnd(16); const id = this.state.payDueId;
+      this.setState(s => ({ dues: s.dues.map(d => d.id === id ? Object.assign({}, d, { paidOn: TODAY, method: 'Online', ref }) : d) }), () => { this.go('receipt', { receiptId: id, justPaid: true }); });
+    });
+  }
+
+  renderVals() {
+    const st = this.state, f = st.f, err = st.err, u = st.user, sc = st.screen;
+    const meta = SCREENS[sc] || SCREENS.landing;
+    const s = {}; s[sc] = true;
+    const isRes = !!(u && u.role === 'resident'), isAdm = !!(u && u.role === 'admin'), isAuth = isRes || isAdm;
+    const PUBLIC = ['landing', 'about', 'community', 'register', 'login', 'forgot', 'status', 'denied'];
+    const fullPage = sc === 'pay' || sc === 'receipt';
+    const appLayout = PUBLIC.indexOf(sc) < 0 && !fullPage;
+    const me = isRes ? st.residents.find(r => r.id === u.id) : null;
+    const adm = st.admin;
+    const homeKey = isRes ? 'rhome' : isAdm ? 'ahome' : 'landing';
+    const go = (k, x) => () => this.go(k, x);
+    const bc = {}, inv = {}; KEYS.forEach(k => { bc[k] = err[k] ? '#F87171' : '#6B7280'; inv[k] = err[k] ? 'true' : 'false'; });
+    const busy = { login: st.busy === 'login', reg: st.busy === 'reg', comp: st.busy === 'comp', fg: st.busy === 'fg' };
+    const idle = { login: !busy.login, reg: !busy.reg, comp: !busy.comp, fg: !busy.fg };
+
+    const mk = (label, key, act) => ({ label, go: go(key), cur: act ? 'page' : undefined, fg: act ? '#7A5A00' : '#1F2937', line: act ? '#C99700' : 'transparent' });
+    const navItems = [mk('Home', homeKey, sc === homeKey), mk('About', 'about', sc === 'about'), mk('Community', 'community', sc === 'community')];
+    if (isAuth) navItems.push(mk('Profile Details', 'profile', sc === 'profile'));
+
+    const pendingCount = st.residents.filter(r => r.status === 'Pending').length;
+    const newComp = st.complaints.filter(c => c.status === 'New').length;
+    const resMenu = [['rhome', 'Dashboard'], ['ann', 'View Announcements'], ['complain', 'Post Complaint'], ['mycomp', 'My Complaints Submitted'], ['dues', 'View Dues']];
+    const admMenu = [['ahome', 'Dashboard'], ['ares', 'Manage Residents Accounts', pendingCount, 'pending'], ['aann', 'Post Announcements'], ['acomp', 'View Complaints', newComp, 'new'], ['adues', 'Manage Dues']];
+    const side = (isAdm ? admMenu : resMenu).map(([k, l, c, w]) => { const act = sc === k || (sc === 'averify' && k === 'ares'); return { label: l, go: go(k), cur: act ? 'page' : undefined, bg: act ? '#F5B800' : 'transparent', fg: act ? '#1A1A1A' : '#E5E7EB', fw: act ? '600' : '500', count: c || 0, hasCount: !!c, countLabel: w || '' }; });
+    const crumbs = [];
+    if (appLayout) {
+      crumbs.push({ label: 'Dashboard', go: go(homeKey), link: sc !== homeKey, here: sc === homeKey, sep: false });
+      if (sc === 'averify') crumbs.push({ label: 'Manage Residents Accounts', go: go('ares'), link: true, here: false, sep: true });
+      if (sc !== homeKey) crumbs.push({ label: meta.name, link: false, here: true, sep: true });
+    }
+
+    // announcements
+    const annAll = st.announcements.slice().sort((a, b) => b.date.localeCompare(a.date)).map(a => Object.assign({}, a, { dateText: fd(a.date), tile: CAT[a.cat] || '#334155' }));
+    const q = (f.search_ann || '').trim().toLowerCase();
+    const annList = annAll.filter(a => !q || (a.title + ' ' + a.body + ' ' + a.cat).toLowerCase().indexOf(q) >= 0);
+    const latestAnn = annAll[0] || { title: 'No announcements yet', dateText: '', body: '' };
+
+    // complaints (resident)
+    const tabsOf = (list, cur, key) => ['All', 'New', 'In progress', 'Resolved'].map(t => ({ label: t, count: t === 'All' ? list.length : list.filter(c => c.status === t).length, pick: () => this.setF({ [key]: t }), sel: cur === t ? 'true' : 'false', bg: cur === t ? '#F5B800' : 'rgba(255,255,255,0.08)', fg: cur === t ? '#1A1A1A' : '#E5E7EB' }));
+    const myC = me ? st.complaints.filter(c => c.residentId === me.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
+    const myRows = myC.filter(c => f.mycomp_tab === 'All' || c.status === f.mycomp_tab).map(c => { const open = st.selComp === c.id; return { id: c.id, subject: c.subject, cat: c.cat, dateText: fd(c.date), details: c.details, photo: c.photo, note: c.note || 'No update yet — the association will review your complaint soon.', updated: c.updated ? fd(c.updated) : 'not yet', b: badge(c.status), open, openAria: open ? 'true' : 'false', toggleLabel: open ? 'Hide' : 'View', toggleAria: (open ? 'Hide' : 'View') + ' details of ' + c.id, toggle: () => this.setState({ selComp: open ? null : c.id }), hl: st.highlightComp === c.id ? 'rgba(245,184,0,0.12)' : 'transparent' }; });
+    const openC = myC.filter(c => c.status !== 'Resolved');
+
+    // dues (resident)
+    const myDuesRaw = me ? st.dues.filter(d => d.residentId === me.id).sort((a, b) => b.period.localeCompare(a.period)) : [];
+    const myDues = myDuesRaw.map(d => { const stt = dStatus(d); return { periodText: fp(d.period), amountText: peso(d.amount), dueText: fd(d.due), b: badge(stt), methodText: d.method || '—', paidText: d.paidOn ? fd(d.paidOn) : '—', canPay: !d.paidOn, isPaid: !!d.paidOn, pay: () => this.startPay(d.id), receipt: go('receipt', { receiptId: d.id }), payAria: 'Pay ' + fp(d.period) + ' dues with QR Ph', rcptAria: 'View receipt for ' + fp(d.period) }; });
+    const unpaid = myDuesRaw.filter(d => !d.paidOn);
+    const overdueCount = unpaid.filter(d => d.due < TODAY).length;
+    const oldest = unpaid[unpaid.length - 1];
+
+    // pay + receipt
+    const pd = st.dues.find(d => d.id === st.payDueId) || st.dues[4];
+    const pr = st.residents.find(r => r.id === pd.residentId);
+    const pay = { periodText: fp(pd.period), amount: peso(pd.amount), name: pr.first + ' ' + pr.last, email: pr.email };
+    const rd = st.dues.find(d => d.id === st.receiptId && d.paidOn) || st.dues.find(d => d.paidOn);
+    const rr = st.residents.find(r => r.id === rd.residentId);
+    const rc = { name: rr.first + ' ' + rr.last, address: 'Block ' + rr.block + ' Lot ' + rr.lot, date: fd(rd.paidOn), ref: rd.ref, desc: 'Monthly village dues (' + fp(rd.period) + ')', amount: peso(rd.amount), method: rd.method, emailMasked: mask(rr.email), justPaid: st.justPaid };
+
+    // registration status
+    const ar = st.residents.find(r => r.id === st.lastAppId) || st.residents[4];
+    const appSteps = [
+      { label: 'Application submitted', state: 'Done', detail: 'We received your details and document on ' + fd(ar.submitted) + '.', done: true },
+      { label: 'Document check (OCR)', state: ar.ocrFail ? 'Needs manual review' : 'Done', detail: ar.ocrFail ? 'Your document was hard to read, so an administrator will check it by hand.' : 'Your document was read and compared with your registration.', done: true },
+      { label: 'Administrator review', state: ar.status === 'Pending' ? 'In progress' : 'Done', detail: ar.status === 'Pending' ? 'An administrator is reviewing your application. This usually takes 1–2 working days.' : 'Reviewed by the association administrator.', done: ar.status !== 'Pending', cur: ar.status === 'Pending' },
+      { label: 'Decision', state: ar.status === 'Pending' ? 'Waiting' : ar.status, detail: ar.status === 'Approved' ? 'You can now log in to the resident portal.' : ar.status === 'Rejected' ? 'Reason: ' + ar.reason + '.' : 'You\'ll get an email at ' + mask(ar.email) + ' when there\'s a decision.', done: ar.status !== 'Pending', bad: ar.status === 'Rejected' }
+    ].map(x => ({ label: x.label, state: x.state, detail: x.detail, mark: x.bad ? '✕' : x.done ? '✓' : x.cur ? '…' : '○', dot: x.bad ? '#B91C1C' : x.done ? '#15803D' : x.cur ? '#F5B800' : '#374151', dotFg: x.cur ? '#1A1A1A' : '#FFFFFF' }));
+    const app = { ref: 'APP-2026-' + String(ar.id).padStart(4, '0'), submitted: fd(ar.submitted), b: badge(ar.status), steps: appSteps,
+      headline: ar.status === 'Approved' ? 'You\'re approved, ' + ar.first + '!' : ar.status === 'Rejected' ? 'Application not approved' : 'Thanks, ' + ar.first + ' — your application is under review',
+      message: ar.status === 'Approved' ? 'Your residency was verified. Log in with your username and password.' : ar.status === 'Rejected' ? 'Please register again with a document that shows your Dolce Vita address.' : 'You can\'t log in until an administrator approves your account.' };
+
+    // admin residents
+    const rq = (f.search_res || '').trim().toLowerCase();
+    const resTabs = ['All', 'Pending', 'Approved', 'Rejected'].map(t => ({ label: t, count: t === 'All' ? st.residents.length : st.residents.filter(r => r.status === t).length, pick: () => this.setF({ res_tab: t }), sel: f.res_tab === t ? 'true' : 'false', bg: f.res_tab === t ? '#F5B800' : 'rgba(255,255,255,0.08)', fg: f.res_tab === t ? '#1A1A1A' : '#E5E7EB' }));
+    const resRows = st.residents.filter(r => (f.res_tab === 'All' || r.status === f.res_tab) && (!rq || (r.first + ' ' + r.last + ' ' + r.email + ' blk ' + r.block + ' lot ' + r.lot).toLowerCase().indexOf(rq) >= 0))
+      .slice().sort((a, b) => (a.status === 'Pending' ? 0 : 1) - (b.status === 'Pending' ? 0 : 1) || a.id - b.id)
+      .map((r, i) => { const nm = r.first + ' ' + r.last; return { n: i + 1, name: nm, initials: ini(r.first, r.last), email: r.email, blockLot: 'Blk ' + r.block + ' Lot ' + r.lot, phone: r.phone, submittedText: fd(r.submitted), confText: r.ocrFail ? 'Unreadable' : r.conf + '%', confFg: r.ocrFail ? '#FCD34D' : r.conf >= 85 ? '#86EFAC' : r.conf >= 60 ? '#FCD34D' : '#FCA5A5', b: badge(r.status), isPending: r.status === 'Pending', reviewLabel: r.status === 'Pending' ? 'Review' : 'View', reviewAria: (r.status === 'Pending' ? 'Review ' : 'View ') + nm, approveAria: 'Approve ' + nm, rejectAria: 'Reject ' + nm, review: go('averify', { selRes: r.id }), approve: () => this.openModal({ type: 'approve', id: r.id }), reject: () => this.openModal({ type: 'reject', id: r.id }) }; });
+    const resStats = { total: st.residents.length, pending: pendingCount, approved: st.residents.filter(r => r.status === 'Approved').length, rejected: st.residents.filter(r => r.status === 'Rejected').length };
+
+    // verification
+    const vr = st.residents.find(r => r.id === st.selRes) || st.residents[4];
+    const vName = [vr.first, vr.middle.trim(), vr.last].filter(Boolean).join(' ');
+    const conf = vr.conf || 0;
+    const v = { name: vName, email: vr.email, phone: vr.phone, username: vr.username, birth: fd(vr.birth), submitted: fd(vr.submitted), blockLot: 'Blk ' + vr.block + ' Lot ' + vr.lot + ', Dolce Vita', doc: vr.doc, fileName: vr.fileName, b: badge(vr.status), ocrFail: vr.ocrFail, ocrOk: !vr.ocrFail, conf, confText: conf + '%', confWidth: conf + '%', confLevel: conf >= 85 ? 'High' : conf >= 60 ? 'Medium' : 'Low', confFg: conf >= 85 ? '#4ADE80' : conf >= 60 ? '#FCD34D' : '#F87171', isPending: vr.status === 'Pending', hasReason: vr.status === 'Rejected', reason: vr.reason, docBlur: vr.ocrFail ? 'blur(2px)' : 'none', docAria: vr.ocrFail ? 'Uploaded document preview; image is blurry' : 'Uploaded document preview: ' + vr.doc, approve: () => this.openModal({ type: 'approve', id: vr.id }), reject: () => this.openModal({ type: 'reject', id: vr.id }) };
+    const vRows = vr.ocrFail ? [] : [
+      { field: 'Full name', entered: vName, extracted: vr.ocr.name, ok: vr.ocr.nameOk },
+      { field: 'Address', entered: 'Blk ' + vr.block + ' Lot ' + vr.lot + ', Dolce Vita', extracted: vr.ocr.address, ok: vr.ocr.addrOk },
+      { field: 'Issued by', entered: 'Barangay Zapote (expected)', extracted: vr.ocr.issuer, ok: true },
+      { field: 'Date issued', entered: 'Within 6 months', extracted: fd(vr.ocr.issued), ok: true }
+    ].map(x => Object.assign(x, { res: x.ok ? '✓ Match' : '✕ Mismatch', fg: x.ok ? '#86EFAC' : '#FCA5A5' }));
+
+    // admin announcements
+    const adminAnn = annAll.map(a => Object.assign({}, a, { edit: () => this.setState(s2 => ({ anOpen: true, anEdit: a.id, err: {}, f: Object.assign({}, s2.f, { an_title: a.title, an_body: a.body, an_cat: a.cat }) })), del: () => this.openModal({ type: 'delAnn', id: a.id }), editAria: 'Edit ' + a.title, delAria: 'Delete ' + a.title }));
+
+    // admin complaints
+    const cq = (f.search_comp || '').trim().toLowerCase();
+    const allC = st.complaints.slice().sort((a, b) => b.date.localeCompare(a.date));
+    const acRows = allC.filter(c => (f.comp_tab === 'All' || c.status === f.comp_tab)).map(c => { const r = st.residents.find(x => x.id === c.residentId); return { c, r }; })
+      .filter(({ c, r }) => !cq || (c.id + ' ' + r.first + ' ' + r.last + ' ' + c.subject).toLowerCase().indexOf(cq) >= 0)
+      .map(({ c, r }) => { const val = st.compEdits[c.id] || c.status; return { id: c.id, resident: r.first + ' ' + r.last, blockLot: 'Blk ' + r.block + ' Lot ' + r.lot, subject: c.subject, details: c.details, dateText: fd(c.date), b: badge(c.status), val, unchanged: val === c.status, selAria: 'New status for ' + c.id, updAria: 'Save status for ' + c.id, delAria: 'Delete ' + c.id,
+        onSel: (e) => { const nv = e.target.value; this.setState(s2 => ({ compEdits: Object.assign({}, s2.compEdits, { [c.id]: nv }) })); },
+        update: () => { const nv = this.state.compEdits[c.id]; if (!nv || nv === c.status) return; const note = nv === 'Resolved' ? 'Marked resolved by the association.' : nv === 'In progress' ? 'The association is working on this concern.' : ''; this.setState(s2 => ({ complaints: s2.complaints.map(x => x.id === c.id ? Object.assign({}, x, { status: nv, updated: TODAY, note: note || x.note }) : x), compEdits: Object.assign({}, s2.compEdits, { [c.id]: undefined }) })); this.toastMsg('success', c.id + ' updated', 'Status is now ' + nv + '. The resident can see the change.'); },
+        del: () => this.openModal({ type: 'delComp', id: c.id }) }; });
+
+    // admin dues
+    const approvedIds = st.residents.filter(r => r.status === 'Approved').map(r => r.id);
+    const periods = Array.from(new Set(st.dues.map(d => d.period))).filter(p => p >= '2026-09').sort();
+    const am = periods.indexOf(f.adues_month) >= 0 ? f.adues_month : '2026-10';
+    const monthChips = periods.map(p => ({ label: fp(p), pick: () => this.setF({ adues_month: p }), sel: am === p ? 'true' : 'false', bg: am === p ? '#F5B800' : 'rgba(255,255,255,0.08)', fg: am === p ? '#1A1A1A' : '#E5E7EB' }));
+    const monthDues = st.dues.filter(d => d.period === am).map(d => ({ d, r: st.residents.find(x => x.id === d.residentId), stt: dStatus(d) }));
+    const dq = (f.search_dues || '').trim().toLowerCase();
+    const duesTabs = ['All', 'Paid', 'Unpaid', 'Overdue'].map(t => ({ label: t, count: t === 'All' ? monthDues.length : monthDues.filter(x => x.stt === t).length, pick: () => this.setF({ dues_tab: t }), sel: f.dues_tab === t ? 'true' : 'false', bg: f.dues_tab === t ? '#F5B800' : 'rgba(255,255,255,0.08)', fg: f.dues_tab === t ? '#1A1A1A' : '#E5E7EB' }));
+    const aDuesRows = monthDues.filter(x => (f.dues_tab === 'All' || x.stt === f.dues_tab) && (!dq || (x.r.first + ' ' + x.r.last + ' blk ' + x.r.block + ' lot ' + x.r.lot + ' ' + x.d.ref).toLowerCase().indexOf(dq) >= 0))
+      .map(({ d, r, stt }) => ({ name: r.first + ' ' + r.last, initials: ini(r.first, r.last), blockLot: 'Blk ' + r.block + ' Lot ' + r.lot, amountText: peso(d.amount), dueText: fd(d.due), b: badge(stt), methodText: d.method || '—', paidText: d.paidOn ? fd(d.paidOn) : '—', refText: d.ref || '—', isPaid: !!d.paidOn, canPay: !d.paidOn, receipt: go('receipt', { receiptId: d.id }), record: () => this.openModal({ type: 'onsite', id: d.id }), rcptAria: 'View receipt for ' + r.first + ' ' + r.last, recAria: 'Record onsite payment for ' + r.first + ' ' + r.last }));
+    const paidM = monthDues.filter(x => x.d.paidOn);
+    const ds = { total: monthDues.length, paid: paidM.length, unpaid: monthDues.filter(x => x.stt === 'Unpaid').length, overdue: monthDues.filter(x => x.stt === 'Overdue').length, collected: peso(paidM.reduce((a, x) => a + x.d.amount, 0)), outstanding: peso(monthDues.filter(x => !x.d.paidOn).reduce((a, x) => a + x.d.amount, 0)) };
+    const genDone = periods.indexOf('2026-11') >= 0;
+    const cur = st.dues.filter(d => d.period === '2026-10');
+
+    // modal
+    const md = st.modal || {}; const m = {}; if (md.type) m[md.type] = true;
+    let mod = {};
+    if (md.type === 'approve' || md.type === 'reject') { const r = st.residents.find(x => x.id === md.id); mod = { name: r.first + ' ' + r.last, email: r.email, ocrNote: r.ocrFail ? 'OCR could not read this document — make sure you checked it manually.' : 'OCR match: ' + r.conf + '%.' }; }
+    if (md.type === 'delAnn') { const a = st.announcements.find(x => x.id === md.id); mod = { title: a ? a.title : '' }; }
+    if (md.type === 'delComp') { const c = st.complaints.find(x => x.id === md.id); mod = { id: md.id, subject: c ? c.subject : '' }; }
+    if (md.type === 'onsite') { const d = st.dues.find(x => x.id === md.id); const r = st.residents.find(x => x.id === d.residentId); mod = { name: r.first + ' ' + r.last, period: fp(d.period), amount: peso(d.amount) }; }
+    if (md.type === 'generate') mod = { count: approvedIds.length };
+
+    const TK = { success: ['#052E1C', '#22C55E', '✓'], error: ['#3B0A0A', '#EF4444', '!'], info: ['#0B1E3F', '#60A5FA', 'i'] };
+    const toast = st.toast ? { title: st.toast.title, text: st.toast.text, bg: TK[st.toast.kind][0], border: TK[st.toast.kind][1], icon: TK[st.toast.kind][2] } : null;
+    const FE = { error: ['#3B0A0A', '#EF4444', '#FECACA'], warn: ['#3A2A05', '#F59E0B', '#FEF3C7'] };
+    const formErr = st.formErr ? { title: st.formErr.title, text: st.formErr.text, bg: FE[st.formErr.kind][0], border: FE[st.formErr.kind][1], fg: FE[st.formErr.kind][2], statusLink: !!st.formErr.id, openStatus: go('status', { lastAppId: st.formErr.id }) } : null;
+    const prof = isRes && me ? { fullName: [me.first, me.middle.trim(), me.last].filter(Boolean).join(' '), sub: 'Resident · Block ' + me.block + ' Lot ' + me.lot + ', Dolce Vita', username: me.username, doc: me.doc, submitted: fd(me.submitted) } : { fullName: adm.first + ' ' + adm.last, sub: 'Administrator account', username: adm.username, doc: '', submitted: '' };
+
+    return {
+      showBar: this.props.showPrototypeBar ?? true, screen: sc, meta, s, f, err, bc, inv, on: this.on, busy, idle,
+      isAuth, isGuest: !isAuth, isRes, isAdm, appLayout, showNav: !fullPage,
+      userName: me ? me.first + ' ' + me.last : isAdm ? adm.first + ' ' + adm.last : '', userFirst: me ? me.first : isAdm ? adm.first : '', userInitials: me ? ini(me.first, me.last) : isAdm ? ini(adm.first, adm.last) : '', roleLabel: isAdm ? 'Administrator' : 'Resident',
+      navItems, loginLine: sc === 'login' ? '#C99700' : 'transparent', side, sideLabel: isAdm ? 'Administrator menu' : 'Resident menu', crumbs,
+      team: [{ role: 'Project manager and full-stack developer' }, { role: 'Documentation and presentation specialist' }, { role: 'Quality assurance tester' }, { role: 'Web designer and system analyst' }, { role: 'Front-end developer' }],
+      regSummary: st.regSummary, regFile: f.reg_file ? { name: f.reg_file.name, size: (f.reg_file.size / 1024 / 1024).toFixed(2) + ' MB' } : null, noRegFile: !f.reg_file,
+      notice: st.notice, formErr, pwType: st.showPw ? 'text' : 'password', pwToggleLabel: st.showPw ? 'Hide' : 'Show', pwShownAria: st.showPw ? 'true' : 'false',
+      fgSent: st.fgSent, fgForm: !st.fgSent, app, deniedText: isAdm ? 'This page is for residents only. Administrators manage residents from the admin dashboard.' : 'This page is for administrators only. If you think you need access, contact the association office.',
+      annList, annEmpty: annList.length === 0, annCountText: q ? annList.length + ' result' + (annList.length === 1 ? '' : 's') + ' for “' + f.search_ann + '”' : annAll.length + ' announcements', latestAnn,
+      duesBalance: peso(unpaid.reduce((a, d) => a + d.amount, 0)), duesSummary: unpaid.length ? unpaid.length + ' unpaid month' + (unpaid.length > 1 ? 's' : '') + (overdueCount ? ', ' + overdueCount + ' overdue' : '') : 'You\'re all paid up. Thank you!', hasUnpaid: unpaid.length > 0, oldestLabel: oldest ? fp(oldest.period) : '', payOldest: () => oldest && this.startPay(oldest.id),
+      openCompCount: openC.length, openCompText: openC.length ? openC.map(c => c.id + ' · ' + c.status).join(', ') : 'No open complaints.',
+      myTabs: tabsOf(myC, f.mycomp_tab, 'mycomp_tab'), myRows, myEmpty: myRows.length === 0,
+      myDues, overdueCount, unpaidOnlyCount: unpaid.length - overdueCount, paidCount: myDuesRaw.length - unpaid.length, myAddress: me ? 'Block ' + me.block + ' Lot ' + me.lot : '',
+      cpCount: f.cp_details.length,
+      prof,
+      pendingCount, newComp, curMonthLabel: 'October 2026', curUnpaid: cur.filter(d => !d.paidOn).length, curPaid: cur.filter(d => d.paidOn).length, curTotal: cur.length, curCollected: peso(cur.filter(d => d.paidOn).reduce((a, d) => a + d.amount, 0)),
+      resTabs, resRows, resEmpty: resRows.length === 0, resRowsCount: resRows.length, resStats,
+      v, vRows,
+      anOpen: st.anOpen, anClosed: !st.anOpen, anFormTitle: st.anEdit ? 'Edit announcement' : 'New announcement', anSubmitLabel: st.anEdit ? 'Save changes' : 'Publish announcement', adminAnn, adminAnnEmpty: adminAnn.length === 0,
+      acTabs: tabsOf(allC, f.comp_tab, 'comp_tab'), acRows, acEmpty: acRows.length === 0,
+      monthChips, duesTabs, aDuesRows, aDuesEmpty: aDuesRows.length === 0, ds, genDone, genLabel: genDone ? 'November 2026 dues generated' : 'Generate ₱840 dues for November 2026',
+      pay, payQr: st.payStage === 'qr', payProc: st.payStage === 'proc', payFail: st.payStage === 'fail', qr: this.qr,
+      rc, receiptBackLabel: isAdm ? 'Back to Manage Dues' : 'Back to My Dues',
+      anyModal: !!st.modal, m, mod, toast,
+
+      // navigation handlers
+      jump: (e) => this.go(e.target.value),
+      asVisitor: () => this.loginAs('visitor'), asResident: () => this.loginAs('resident'), asAdmin: () => this.loginAs('admin'),
+      resetAll: () => { this.setState(this.fresh()); this.top(); },
+      goHome: go(homeKey), goLanding: go('landing'), goLogin: go('login'), goRegister: go('register'), goForgot: go('forgot'), goCommunity: go('community'),
+      goAnn: go('ann'), goComplain: go('complain'), goMyComp: go('mycomp'), goDues: go('dues'),
+      goARes: go('ares'), goAAnn: go('aann'), goAComp: go('acomp'), goADues: go('adues'),
+      goAResPending: () => { this.setF({ res_tab: 'Pending' }); this.go('ares'); }, goACompNew: () => { this.setF({ comp_tab: 'New' }); this.go('acomp'); },
+      receiptBack: go(isAdm ? 'adues' : 'dues'),
+      askLogout: () => this.openModal({ type: 'logout' }),
+      closeModal: () => this.setState({ modal: null, err: {} }), closeToast: () => this.setState({ toast: null }),
+
+      // forms
+      submitLogin: this.submitLogin, submitForgot: this.submitForgot, submitFeedback: this.submitFeedback, submitRegister: this.submitRegister, submitComplaint: this.submitComplaint, saveProfile: this.saveProfile, changePassword: this.changePassword, publishAnn: this.publishAnn,
+      togglePw: () => this.setState({ showPw: !st.showPw }),
+      resendReset: () => this.setState(s2 => ({ fgSent: false, f: Object.assign({}, s2.f, { fg_email: '' }) })),
+      useSampleFile: () => this.setState(s2 => ({ f: Object.assign({}, s2.f, { reg_file: { name: 'barangay_certificate.jpg', size: 846000 } }), err: Object.assign({}, s2.err, { reg_file: null }) })),
+      clearAnnSearch: () => this.setF({ search_ann: '' }),
+      clearResFilters: () => this.setF({ search_res: '', res_tab: 'All' }),
+      cancelComplaint: () => { const ff = this.state.f; if (ff.cp_subject.trim() || ff.cp_details.trim()) this.openModal({ type: 'discard' }); else this.go('rhome'); },
+      confirmDiscard: () => { this.setState(s2 => ({ modal: null, f: Object.assign({}, s2.f, { cp_subject: '', cp_cat: '', cp_details: '', cp_photo: null }) })); this.go('rhome'); },
+      doLogout: () => { this.setState({ user: null, modal: null, showPw: false }, () => { this.go('landing'); this.toastMsg('info', 'Logged out', 'You\'ve been logged out safely.'); }); },
+      openAnnForm: () => this.setState(s2 => ({ anOpen: true, anEdit: null, err: {}, f: Object.assign({}, s2.f, { an_title: '', an_body: '', an_cat: 'General' }) })),
+      closeAnnForm: () => this.setState({ anOpen: false, anEdit: null, err: {} }),
+      confirmDelAnn: () => { const id = this.state.modal.id; this.setState(s2 => ({ announcements: s2.announcements.filter(a => a.id !== id), modal: null })); this.toastMsg('success', 'Announcement deleted', 'It no longer appears to residents.'); },
+      confirmDelComp: () => { const id = this.state.modal.id; this.setState(s2 => ({ complaints: s2.complaints.filter(c => c.id !== id), modal: null })); this.toastMsg('success', 'Complaint deleted', id + ' was removed.'); },
+      confirmApprove: () => { const id = this.state.modal.id; const r = this.state.residents.find(x => x.id === id); this.setState(s2 => ({ modal: null, residents: s2.residents.map(x => x.id === id ? Object.assign({}, x, { status: 'Approved', reason: '' }) : x), dues: s2.dues.some(d => d.residentId === id && d.period === '2026-10') ? s2.dues : s2.dues.concat([{ id: 'D-' + id + '-2026-10', residentId: id, period: '2026-10', amount: 840, due: lastDay('2026-10'), paidOn: '', method: '', ref: '' }]) })); this.toastMsg('success', r.first + ' ' + r.last + ' approved', 'An approval email was sent. They can now log in.'); },
+      confirmReject: () => { const ff = this.state.f; if (!ff.rej_reason) { this.setState({ err: { rej_reason: 'Choose a reason so the applicant knows what to fix.' } }); return; } const id = this.state.modal.id; const r = this.state.residents.find(x => x.id === id); this.setState(s2 => ({ modal: null, residents: s2.residents.map(x => x.id === id ? Object.assign({}, x, { status: 'Rejected', reason: ff.rej_reason }) : x) })); this.toastMsg('success', 'Application rejected', r.first + ' ' + r.last + ' was emailed the reason.'); },
+      retryOcr: () => this.toastMsg('error', 'Still unreadable', 'OCR couldn\'t read the document again. Review it manually or reject with “Document is unreadable”.'),
+      askGenerate: () => this.openModal({ type: 'generate' }),
+      confirmGenerate: () => { this.setState(s2 => { const ids = s2.residents.filter(r => r.status === 'Approved').map(r => r.id); return { modal: null, dues: s2.dues.concat(ids.map(id => ({ id: 'D-' + id + '-2026-11', residentId: id, period: '2026-11', amount: 840, due: lastDay('2026-11'), paidOn: '', method: '', ref: '' }))), f: Object.assign({}, s2.f, { adues_month: '2026-11', dues_tab: 'All' }) }; }); this.toastMsg('success', 'November 2026 dues generated', 'Residents can now see and pay their November bill.'); },
+      confirmOnsite: () => { const ff = this.state.f; const e2 = {}; if (!ff.on_or.trim()) e2.on_or = 'Enter the OR number from the paper receipt.'; else if (!/^OR-\d{4}-\d{4}$/.test(ff.on_or.trim())) e2.on_or = 'Use the format OR-YYYY-NNNN, for example OR-2026-0458.'; else if (this.state.dues.some(d => d.ref === ff.on_or.trim())) e2.on_or = 'This OR number is already recorded. Check the receipt number.'; if (!ff.on_date) e2.on_date = 'Enter the payment date.'; else if (ff.on_date > TODAY) e2.on_date = 'Payment date can\'t be in the future.'; if (Object.keys(e2).length) { this.setState({ err: e2 }); return; } const id = this.state.modal.id; this.setState(s2 => ({ modal: null, nextOR: s2.nextOR + 1, dues: s2.dues.map(d => d.id === id ? Object.assign({}, d, { paidOn: ff.on_date, method: 'Onsite', ref: ff.on_or.trim() }) : d) })); this.toastMsg('success', 'Onsite payment recorded', 'Receipt ' + ff.on_or.trim() + ' was generated.'); },
+      exportDues: () => this.toastMsg('success', 'Export complete', 'dues_' + am + '.csv was downloaded (simulated).'),
+      simPaySuccess: () => this.finishPay(true), simPayFail: () => this.finishPay(false), retryPay: () => this.setState({ payStage: 'qr' }),
+      cancelPay: () => { this.go('dues'); this.toastMsg('info', 'Payment cancelled', 'You were not charged.'); },
+      printReceipt: () => this.toastMsg('info', 'Print', 'The print dialog would open here (simulated).'),
+      downloadReceipt: () => this.toastMsg('success', 'Download complete', 'receipt_' + rc.ref + '.pdf was saved (simulated).')
+    };
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(Component, {showPrototypeBar: true}));
+</script>
+</body>
+</html>
